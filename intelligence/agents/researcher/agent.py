@@ -57,13 +57,13 @@ async def _execute(step: ResearchStep) -> tuple[str, ProviderCall]:
     start_time = time.monotonic()
 
     try:
-        if tool in ("serp_search", "serp_news"):
+        if tool in ("serp_search", "serp_news", "mcp_search"):
             search_type = "news" if tool == "serp_news" else "web"
             results = await provider_manager.search(q, limit=10, search_type=search_type)
             if results:
                 result_text = _fmt_serp(results)
 
-        elif tool in ("mcp_search", "mcp_scrape", "unlocker_fetch"):
+        elif tool in ("mcp_scrape", "unlocker_fetch"):
             result_text, _, _ = await provider_manager.fetch_page(q)
 
         elif tool == "browser_render":
@@ -79,6 +79,7 @@ async def _execute(step: ResearchStep) -> tuple[str, ProviderCall]:
             result_text = f"[Unknown tool: {tool}]"
 
     except Exception as exc:
+        log.exception("Researcher agent: tool execution failed: %s", exc)
         result_text = f"[Error in {tool}: {exc}]"
 
     latency_ms = int((time.monotonic() - start_time) * 1000)

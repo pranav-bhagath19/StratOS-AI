@@ -276,8 +276,8 @@ Full layer decisions: [ARCHITECTURE.md](ARCHITECTURE.md).
 **Prerequisites:** Node 18+, pnpm, Python 3.11+, uv, a Firebase project, an OpenRouter API key.
 
 ```powershell
-git clone https://github.com/jpablortiz96/stratos-ai.git
-cd stratos-ai
+git clone https://github.com/pranav-bhagath19/StratOS-AI.git
+cd StratOS-AI
 
 # Backend
 cd api

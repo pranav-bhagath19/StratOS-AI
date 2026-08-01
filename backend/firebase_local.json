@@ -8,11 +8,145 @@
       "context": null,
       "created_at": "2026-08-01T06:23:53.060218+00:00",
       "updated_at": "2026-08-01T06:23:53.065209+00:00"
+    },
+    "3aa840f4-e73f-44a5-9a17-ec342f1d5bbc": {
+      "id": "3aa840f4-e73f-44a5-9a17-ec342f1d5bbc",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T06:35:10.726034+00:00",
+      "updated_at": "2026-08-01T06:35:10.881497+00:00"
+    },
+    "db29e3b6-1860-455d-bf5d-99a30b8c71f5": {
+      "id": "db29e3b6-1860-455d-bf5d-99a30b8c71f5",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T06:38:25.101330+00:00",
+      "updated_at": "2026-08-01T06:38:25.231418+00:00"
+    },
+    "1cbf61f9-ea3f-42d2-93e5-bf1f8809d156": {
+      "id": "1cbf61f9-ea3f-42d2-93e5-bf1f8809d156",
+      "target": "boeing.com",
+      "analysis_type": "supplier_watch",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T06:38:51.505662+00:00",
+      "updated_at": "2026-08-01T06:38:51.550712+00:00"
+    },
+    "9631ae9f-fa4f-4f6a-8ca6-1b78d74925f5": {
+      "id": "9631ae9f-fa4f-4f6a-8ca6-1b78d74925f5",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "running",
+      "context": null,
+      "created_at": "2026-08-01T06:42:48.865423+00:00",
+      "updated_at": "2026-08-01T06:42:58.945160+00:00"
+    },
+    "049aa4b1-03f5-4023-b935-ed288a36e899": {
+      "id": "049aa4b1-03f5-4023-b935-ed288a36e899",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T06:43:10.405830+00:00",
+      "updated_at": "2026-08-01T06:43:12.879201+00:00"
+    },
+    "44a7ae1d-82f1-4098-954f-e4dccae906a7": {
+      "id": "44a7ae1d-82f1-4098-954f-e4dccae906a7",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T07:06:42.121992+00:00",
+      "updated_at": "2026-08-01T07:06:42.482379+00:00"
+    },
+    "696aa70b-ca0f-4a7b-8bb1-51e96283df03": {
+      "id": "696aa70b-ca0f-4a7b-8bb1-51e96283df03",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T07:17:55.790536+00:00",
+      "updated_at": "2026-08-01T07:18:00.390900+00:00"
+    },
+    "10bf7c94-4536-48ac-9450-f0373fe23ca0": {
+      "id": "10bf7c94-4536-48ac-9450-f0373fe23ca0",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T07:24:58.620969+00:00",
+      "updated_at": "2026-08-01T07:25:02.263758+00:00"
     }
   },
   "briefs": {},
-  "intelligence_events": {},
+  "intelligence_events": {
+    "1a0bb3e8-73d7-4f75-a22a-10f9c4ecb120": {
+      "id": "1a0bb3e8-73d7-4f75-a22a-10f9c4ecb120",
+      "analysis_id": "44a7ae1d-82f1-4098-954f-e4dccae906a7",
+      "agent": "commander",
+      "event_type": "failed",
+      "message": "Analysis failed: Missing credentials. Please pass an `api_key`, `workload_identity`, `admin_api_key`, or set the `OPENAI_API_KEY` or `OPENAI_ADMIN_KEY` environment variable.",
+      "payload": null,
+      "provider_product": null,
+      "created_at": "2026-08-01T07:06:42.542762+00:00"
+    },
+    "b1809552-faec-4b49-b780-5880d2b3542c": {
+      "id": "b1809552-faec-4b49-b780-5880d2b3542c",
+      "analysis_id": "696aa70b-ca0f-4a7b-8bb1-51e96283df03",
+      "agent": "commander",
+      "event_type": "failed",
+      "message": "Analysis failed: Error code: 404 - {'error': {'message': 'No endpoints found for anthropic/claude-3.5-sonnet.', 'code': 404}, 'user_id': 'user_38iDbFfHWUJF0qAWQtr9kNFWiEz'}",
+      "payload": null,
+      "provider_product": null,
+      "created_at": "2026-08-01T07:18:00.449794+00:00"
+    },
+    "7a88dcd5-1e7b-4e4f-b0ea-ac6772a066ff": {
+      "id": "7a88dcd5-1e7b-4e4f-b0ea-ac6772a066ff",
+      "analysis_id": "10bf7c94-4536-48ac-9450-f0373fe23ca0",
+      "agent": "commander",
+      "event_type": "failed",
+      "message": "Analysis failed: Error code: 404 - {'error': {'message': 'No endpoints found for anthropic/claude-3.5-sonnet.', 'code': 404}, 'user_id': 'user_38iDbFfHWUJF0qAWQtr9kNFWiEz'}",
+      "payload": null,
+      "provider_product": null,
+      "created_at": "2026-08-01T07:25:02.329219+00:00"
+    }
+  },
   "citations": {},
   "analysis_schedules": {},
-  "scraper_cache": {}
+  "scraper_cache": {
+    "9269b87b9e37d4f79accf8525119e68fd7223f5a6198ebb637e46e19b3b6d323": {
+      "id": "9269b87b9e37d4f79accf8525119e68fd7223f5a6198ebb637e46e19b3b6d323",
+      "target_url": "test_url_cache_key",
+      "dataset_id": "fetch",
+      "snapshot_id": "cached_run",
+      "data": {
+        "content": "This is a cached page test content."
+      },
+      "created_at": "2026-08-01T07:16:21.178748+00:00"
+    },
+    "ba30aca1810791b878e4ef26dec76fcf0859976d48784f35701e3d9146664122": {
+      "id": "ba30aca1810791b878e4ef26dec76fcf0859976d48784f35701e3d9146664122",
+      "target_url": "search:web:War Room AI",
+      "dataset_id": "search",
+      "snapshot_id": "cached_run",
+      "data": {
+        "content": "[{\"title\": \"War Room (film)\", \"url\": \"https://en.wikipedia.org/wiki/War_Room_(film)\", \"description\": \"War Room is a 2015 American Christian drama film directed by Alex Kendrick and written by him and Stephen Kendrick. It is the Kendrick brothers' fifth film and their first through their subsidiary, Kendrick Brothers Productions. The film was produced by Provident Films, Affirm Films and TriStar Pictures in partnership with the Kendrick brothers. The film stars Priscilla Shirer, T.C. Stallings, Karen Abercrombie, Alex Kendrick, and Michael Jr. It was the last film to use the 1993\\u20132015 TriStar Pictures logo.The film was released by Sony Pictures Releasing in North American theaters on August 28, 2015, and received generally negative reviews from film critics, while Christian media critics gave mostly positive reviews, and became a box office success and a sleeper hit, grossing $74 million worldwide including $67.8 million domestically to become the 7th highest-grossing Christian film in the United States. A spin-off titled The Forge (also made by the Kendrick Brothers), was released on August 23, 2024.\"}, {\"title\": \"AI WAR ROOM | Devpost\", \"url\": \"https://devpost.com/software/ai-war-room\", \"description\": \"January 31, 2026 - What it does AI War Room is a turn based strategy arena where multiple AI agents with distinct strategic styles compete inside classic logic and strategy games. Each agent analyzes the same game state, chooses an action, and explains why it ...\"}]"
+      },
+      "created_at": "2026-08-01T06:54:21.508758+00:00"
+    },
+    "6052c0912690dbf095de99aaf0d13f2b54bee69a875127be7ec527148fe4dd91": {
+      "id": "6052c0912690dbf095de99aaf0d13f2b54bee69a875127be7ec527148fe4dd91",
+      "target_url": "search:web:StratOS AI",
+      "dataset_id": "search",
+      "snapshot_id": "cached_run",
+      "data": {
+        "content": "[{\"title\": \"Demetrio Stratos\", \"url\": \"https://en.wikipedia.org/wiki/Demetrio_Stratos\", \"description\": \"Efstratios Dimitriou (Greek: \\u0395\\u03c5\\u03c3\\u03c4\\u03c1\\u03ac\\u03c4\\u03b9\\u03bf\\u03c2 \\u0394\\u03b7\\u03bc\\u03b7\\u03c4\\u03c1\\u03af\\u03bf\\u03c5; 22 April 1945 \\u2013 13 June 1979), known professionally as Demetrio Stratos, was a Greek-Italian vocalist, songwriter, multi-instrumentalist and music researcher, best known as the co-founder, frontman and lead singer of the Italian progressive rock band Area \\u2013 International POPular Group.Born and raised in Alexandria, Egypt, of Greek parents, he studied piano and accordion at the \\\"National Conservatoire\\\". In 1957 he was sent to Nicosia, Cyprus, and, at the age of 17, moved to Milan, Italy, to attend the Politecnico di Milano University at the Architecture Faculty, where he formed his first musical group. In 1967, Demetrio Stratos joined the Italian beat band I Ribelli, and in 1972, founded Area.Stratos recorded many records, and toured festivals in Italy, France, Portugal, Switzerland, Netherlands, Cuba, and the United States with Area, as well as a solo artist and in collaboration with other artists. He worked with Mogol, Lucio Battisti, Gianni Sassi, Gianni Emilio Simonetti, Juan Hidalgo, Walter Marchetti, John Cage, Tran Quang Hai, Merce Cunningham, Jasper Johns, Andy Warhol, Grete Sultan, Paul Zukofsky, Nanni Balestrini, Claude Royet-Journoud, and Antonio Porta.Stratos studied ethnomusicology, vocal extensions, Asian music chant, compared musicology, the problem of ethnic vocality, psychoanalysis, the relationship between spoken language and the psyche, the limits of the spoken language. He was able to reach 7,000 Hz, and to perform diplophony, triplophony, and also quadrophony. Daniel Charles has described him as the person who decimated monody by the demultiplication of the acoustic spectrum. His vocal abilities were explored and documented.Stratos died in New York City Memorial Hospital on 13 June 1979 at the age of 34. His self-proclaimed mission was to free vocal expression from what he considered to be the slavery of language and classical lyrical melody. He considered the exploration of vocal potential as a tool of psychological and political liberation. His studies and recognition of the voice as musical instrument carried this ethos to the edge of human vocal ability. His work is considered by many critics and vocalists as important in the progression of experimental and novel vocal techniques.\"}, {\"title\": \"Stratos | AI-Powered Commercial Digital Twin forB2B Growth\", \"url\": \"https://stratos.ai/\", \"description\": \"April 30, 2026 - Most companies know themselves \\u2014 few know their market in real time. STRATOS unifies your external commercial reality with your internal data into a living Commercial Digital Twin that powers AI-driven strategy and execution at scale.\"}]"
+      },
+      "created_at": "2026-08-01T07:00:51.104386+00:00"
+    }
+  }
 }

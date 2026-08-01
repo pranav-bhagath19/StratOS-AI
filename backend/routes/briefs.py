@@ -64,7 +64,7 @@ class _BriefPDF:
                 self_inner.set_font("Courier", "B", 9)
                 self_inner.set_text_color(40, 40, 40)
                 self_inner.set_x(lm)
-                self_inner.cell(pw / 2, 5, "WAR ROOM AI", ln=False)
+                self_inner.cell(pw / 2, 5, "StratOS AI", ln=False)
                 self_inner.set_font("Courier", "", 8)
                 self_inner.set_text_color(150, 150, 150)
                 self_inner.set_x(lm + pw / 2)

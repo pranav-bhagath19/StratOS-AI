@@ -182,12 +182,12 @@ export default function PricingPage() {
             Pre-seed MVP · Powered by Bright Data
           </span>
           <a
-            href="https://github.com/jpablortiz96/stratos-ai"
+            href="https://github.com/pranav-bhagath19/StratOS-AI"
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono text-[9px] text-zinc-800 hover:text-zinc-600 transition-colors"
           >
-            github.com/jpablortiz96/stratos-ai ↗
+            github.com/pranav-bhagath19/StratOS-AI ↗
           </a>
         </div>
       </footer>

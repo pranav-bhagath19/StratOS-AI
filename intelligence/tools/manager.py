@@ -35,6 +35,13 @@ class ProviderManager:
         # Instantiate DuckDuckGo search provider
         self.search_provider = DuckDuckGoSearchProvider()
         
+        # Instantiate Brave search provider if key is set
+        if settings.brave_api_key:
+            from intelligence.tools.search.brave import BraveSearchProvider
+            self.brave_provider = BraveSearchProvider(api_key=settings.brave_api_key)
+        else:
+            self.brave_provider = None
+        
         # Instantiate fetch providers
         self.requests_fetcher = RequestsFetchProvider()
         self.aiohttp_fetcher = AioHttpFetchProvider()
@@ -52,8 +59,8 @@ class ProviderManager:
         if cached := await get_cached(cache_key, "search"):
             try:
                 return json.loads(cached)
-            except Exception:
-                pass
+            except Exception as cache_exc:
+                log.exception("Failed to parse cached search results: %s", cache_exc)
 
         results = await self._run_search(query, limit, search_type)
 
@@ -70,12 +77,44 @@ class ProviderManager:
                 return await self.search_provider.search_news(query, limit)
             else:
                 return await self.search_provider.search(query, limit)
-        except Exception as exc:
-            log.warning(f"Search: DuckDuckGo failed: {exc}")
-            return []
+        except Exception as ddg_exc:
+            log.warning("Search: DuckDuckGo failed (after retries): %s", ddg_exc)
+            
+            if self.brave_provider:
+                log.info("Search: Falling back to Brave Search for query: %s", query)
+                try:
+                    if search_type == "news":
+                        results = await self.brave_provider.search_news(query, limit)
+                    else:
+                        results = await self.brave_provider.search(query, limit)
+                    
+                    if results:
+                        log.info("Search: Brave Search succeeded for query: %s", query)
+                        return results
+                    else:
+                        log.error("Search: Brave Search returned empty results for query: %s", query)
+                except Exception as brave_exc:
+                    log.exception("Search: Brave Search fallback failed: %s", brave_exc)
+            else:
+                log.warning("Search: No Brave Search API key configured. Cannot fall back.")
+        
+        log.error("Search: Both search providers failed or returned empty results for query: '%s'. This will degrade brief quality.", query)
+        return []
 
     async def fetch_page(self, url: str, force_browser: bool = False) -> tuple[str, str, str]:
         """Fetches page content dynamically trying: Cache -> API -> Requests/AioHttp -> Playwright."""
+        url = url.strip()
+        if not url.startswith("http://") and not url.startswith("https://"):
+            if "." in url and " " not in url:
+                url = f"https://{url}"
+            else:
+                log.info("Fetch: Target '%s' is a text query rather than a URL. Redirecting to search.", url)
+                results = await self.search(url, limit=10)
+                if results:
+                    fmt_results = "\n\n".join(f"### {r['title']}\nURL: {r['url']}\n{r['snippet']}" for r in results)
+                    return fmt_results, "serp_api", "ok"
+                return f"[No results found for query: {url}]", "serp_api", "empty"
+
         # 1. Try Cache
         if settings.cache_enabled:
             if cached := await get_cached(url, "fetch"):
@@ -118,7 +157,8 @@ class ProviderManager:
                 try:
                     content_html = await self.aiohttp_fetcher.fetch(url)
                     fetch_method = "web_unlocker"
-                except Exception:
+                except Exception as aio_exc:
+                    log.exception("Fetch: aiohttp fallback failed after Playwright failed: %s", aio_exc)
                     content_html = await self.requests_fetcher.fetch(url)
         else:
             log.info(f"Fetch: Trying async HTTP fetch (aiohttp) for target: {url}")
@@ -133,8 +173,9 @@ class ProviderManager:
                     fetch_method = "scraping_browser"
                     try:
                         content_html = await self.browser_provider.fetch_rendered(url)
-                    except Exception:
-                        raise RuntimeError(f"All fetch providers failed for {url}")
+                    except Exception as play_exc:
+                        log.exception("Fetch: Playwright fallback failed: %s", play_exc)
+                        raise RuntimeError(f"All fetch providers failed for {url}") from play_exc
 
         # 4. Extract readable content and convert to Markdown
         clean_md = ""

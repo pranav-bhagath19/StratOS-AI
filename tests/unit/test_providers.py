@@ -11,7 +11,7 @@ from intelligence.cache.cache import get_cached, set_cached
 @pytest.mark.asyncio
 async def test_duckduckgo_search_returns_normalized_results():
     provider = DuckDuckGoSearchProvider()
-    results = await provider.search("War Room AI", limit=2)
+    results = await provider.search("StratOS AI", limit=2)
     assert isinstance(results, list)
     if results:
         assert "title" in results[0]
@@ -22,7 +22,7 @@ async def test_duckduckgo_search_returns_normalized_results():
 @pytest.mark.asyncio
 async def test_manager_search_duckduckgo():
     manager = ProviderManager()
-    results = await manager.search("War Room AI", limit=2)
+    results = await manager.search("StratOS AI", limit=2)
     assert isinstance(results, list)
 
 

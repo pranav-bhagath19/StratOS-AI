@@ -97,7 +97,7 @@ Framework only — these have **no values yet**; producing them is the goal of t
 ## How to express interest
 
 Open an issue on the repository — the verifiable contact channel:
-**[github.com/jpablortiz96/stratos-ai/issues](https://github.com/jpablortiz96/stratos-ai/issues)**
+**[github.com/pranav-bhagath19/StratOS-AI/issues](https://github.com/pranav-bhagath19/StratOS-AI/issues)**
 (title it `Design partner: <your company>`).
 
 Tell us: your role, the competitors/accounts you track by hand today, and how often you

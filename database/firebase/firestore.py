@@ -13,7 +13,7 @@ class DatabaseProvider:
             app = get_firebase_app()
             if app:
                 try:
-                    from google.cloud import firestore
+                    from firebase_admin import firestore
                     cls._firestore_client = firestore.client()
                     log.info("Firebase: Firestore client connected.")
                 except Exception as exc:

@@ -3,8 +3,8 @@
 import json
 import logging
 
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
+from intelligence.agents.base.llm import get_llm_response, parse_json_from_llm
 
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState, ResearchStep
@@ -292,24 +292,13 @@ async def run_planner(state: AnalysisState) -> dict:
     await ev.emit(analysis_id, "planner", "started", f"Analyzing {analysis_type} on: {target}")
     await ev.emit(analysis_id, "planner", "thinking", "Building research plan…")
 
-    llm = ChatOpenAI(
-        model=settings.openrouter_model,
-        openai_api_key=settings.openrouter_api_key,
-        openai_api_base=settings.openrouter_base_url,
+    response_content = await get_llm_response(
+        system_msg=_SYSTEM,
+        messages=[HumanMessage(content=_human(analysis_type, target, context))],
         max_tokens=2048,
     )
 
-    response = await llm.ainvoke([
-        SystemMessage(content=_SYSTEM),
-        HumanMessage(content=_human(analysis_type, target, context)),
-    ])
-
-    raw = response.content.strip()
-    if raw.startswith("```"):
-        parts = raw.split("```")
-        raw = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
-
-    plan: list[ResearchStep] = json.loads(raw)
+    plan: list[ResearchStep] = parse_json_from_llm(response_content)
 
     # Post-processing guarantee: every plan must cover all 5 Bright Data products.
     plan = _ensure_all_products(plan, analysis_type, target)

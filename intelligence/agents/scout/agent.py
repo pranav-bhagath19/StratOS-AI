@@ -2,8 +2,8 @@
 
 import json
 
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
+from intelligence.agents.base.llm import get_llm_response, parse_json_from_llm
 
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
@@ -31,23 +31,13 @@ async def run_scout(state: AnalysisState) -> dict:
     await ev.emit(analysis_id, "scout", "started", "Reviewing research for weaknesses…")
     await ev.emit(analysis_id, "scout", "thinking", "Probing data quality and gaps…")
 
-    llm = ChatOpenAI(
-        model=settings.openrouter_model,
-        openai_api_key=settings.openrouter_api_key,
-        openai_api_base=settings.openrouter_base_url,
+    response_content = await get_llm_response(
+        system_msg=_SYSTEM,
+        messages=[HumanMessage(content=f"Target: {target}\n\nFindings:\n{findings[:6000]}")],
         max_tokens=1024,
     )
 
-    response = await llm.ainvoke([
-        SystemMessage(content=_SYSTEM),
-        HumanMessage(content=f"Target: {target}\n\nFindings:\n{findings[:6000]}"),
-    ])
-
-    raw = response.content.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1].lstrip("json").strip()
-
-    challenges: list[str] = json.loads(raw)
+    challenges: list[str] = parse_json_from_llm(response_content)
 
     await ev.emit(
         analysis_id, "scout", "completed",

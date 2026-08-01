@@ -69,7 +69,7 @@ flowchart TD
 ## 2. Directory Structure
 
 ```
-warroom-ai/
+StratOS-AI/
 ├── .env.example            # Environment variables template
 ├── pyproject.toml          # Python dependencies (FastAPI, LangGraph, firebase-admin, etc.)
 ├── uv.lock                 # Lockfile for Python dependencies managed by uv

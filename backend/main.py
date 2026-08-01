@@ -1,6 +1,12 @@
 import logging
 import os
 
+# Configure basic logging at import time so logs reach stdout.
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s:%(name)s:%(message)s",
+)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

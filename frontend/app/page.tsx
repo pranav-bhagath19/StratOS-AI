@@ -92,7 +92,7 @@ export default function Home() {
             <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
           </Link>
           <a
-            href="https://github.com/jpablortiz96/stratos-ai"
+            href="https://github.com/pranav-bhagath19/StratOS-AI"
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono text-xs text-zinc-600 hover:text-zinc-300 transition-colors"
@@ -170,12 +170,12 @@ export default function Home() {
             <span className="font-mono text-[10px] text-zinc-800">LangGraph · Claude · Firebase</span>
             <span className="font-mono text-[9px] text-zinc-800">Pre-seed MVP · Provider-Agnostic</span>
             <a
-              href="https://github.com/jpablortiz96/stratos-ai"
+              href="https://github.com/pranav-bhagath19/StratOS-AI"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-[9px] text-zinc-800 hover:text-zinc-600 transition-colors"
+              className="font-mono text-9px text-zinc-800 hover:text-zinc-600 transition-colors"
             >
-              github.com/jpablortiz96/stratos-ai ↗
+              github.com/pranav-bhagath19/StratOS-AI ↗
             </a>
           </div>
         </div>

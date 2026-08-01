@@ -35,6 +35,33 @@
       "context": null,
       "created_at": "2026-07-30T15:08:11.682013+00:00",
       "updated_at": "2026-07-30T15:08:11.684953+00:00"
+    },
+    "7486a67d-1da1-4e23-ac73-226242596168": {
+      "id": "7486a67d-1da1-4e23-ac73-226242596168",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T07:44:00.103758+00:00",
+      "updated_at": "2026-08-01T07:44:17.225681+00:00"
+    },
+    "579d5e68-e2f3-4781-a8ca-7fbc7192f635": {
+      "id": "579d5e68-e2f3-4781-a8ca-7fbc7192f635",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T07:48:04.586243+00:00",
+      "updated_at": "2026-08-01T07:49:04.613229+00:00"
+    },
+    "e354fcd7-94de-4b05-b25e-a68888b23d03": {
+      "id": "e354fcd7-94de-4b05-b25e-a68888b23d03",
+      "target": "anthropic.com",
+      "analysis_type": "account_pulse",
+      "status": "failed",
+      "context": null,
+      "created_at": "2026-08-01T14:10:46.137452+00:00",
+      "updated_at": "2026-08-01T14:11:13.570915+00:00"
     }
   },
   "briefs": {
@@ -89,6 +116,36 @@
       },
       "provider_product": "serp_api",
       "created_at": "2026-07-30T15:08:11.631029+00:00"
+    },
+    "299ac831-03cc-42d5-a61f-2e32b072232a": {
+      "id": "299ac831-03cc-42d5-a61f-2e32b072232a",
+      "analysis_id": "7486a67d-1da1-4e23-ac73-226242596168",
+      "agent": "commander",
+      "event_type": "failed",
+      "message": "Analysis failed: Unterminated string starting at: line 6 column 162 (char 1077)",
+      "payload": null,
+      "provider_product": null,
+      "created_at": "2026-08-01T07:44:17.246876+00:00"
+    },
+    "b10a29d8-039d-4fa9-9d1f-ce507966f7ae": {
+      "id": "b10a29d8-039d-4fa9-9d1f-ce507966f7ae",
+      "analysis_id": "579d5e68-e2f3-4781-a8ca-7fbc7192f635",
+      "agent": "commander",
+      "event_type": "failed",
+      "message": "Analysis failed: Extra data: line 2 column 1 (char 128)",
+      "payload": null,
+      "provider_product": null,
+      "created_at": "2026-08-01T07:49:04.617771+00:00"
+    },
+    "b729a262-0427-47a2-81ad-f896902e16f0": {
+      "id": "b729a262-0427-47a2-81ad-f896902e16f0",
+      "analysis_id": "e354fcd7-94de-4b05-b25e-a68888b23d03",
+      "agent": "commander",
+      "event_type": "failed",
+      "message": "Analysis failed: Extra data: line 9 column 1 (char 1502)",
+      "payload": null,
+      "provider_product": null,
+      "created_at": "2026-08-01T14:11:13.577803+00:00"
     }
   },
   "citations": {},
@@ -103,6 +160,46 @@
         "content": "This is a cached page test content."
       },
       "created_at": "2026-08-01T05:50:00.384105+00:00"
+    },
+    "8588408e6659e072b37d95597f52b590f649b63fc860cdee762d98955e8af67f": {
+      "id": "8588408e6659e072b37d95597f52b590f649b63fc860cdee762d98955e8af67f",
+      "target_url": "search:news:Anthropic recent announcements product launch",
+      "dataset_id": "search",
+      "snapshot_id": "cached_run",
+      "data": {
+        "content": "[{\"title\": \"Anthropic unveils Claude for Healthcare, expands life science features, and partners with HealthEx to let users connect medical records\", \"url\": \"https://sports.yahoo.com/articles/anthropic-unveils-claude-healthcare-expands-220000800.html\", \"description\": \"AI lab Anthropic is making a major push into healthcare with the launch of Claude for Healthcare and an expansion of its life sciences offerings. The announcement, timed to coincide with the start of ...\"}, {\"title\": \"Anthropic\\u2019s Claude Fable 5 and Mythos 5 Launch: What To Know\", \"url\": \"https://finance.yahoo.com/markets/crypto/articles/anthropic-claude-mythos-launches-today-142844796.html\", \"description\": \"Photo by BeInCrypto Anthropic has just made its neutered Mythos model fable available to the public,...\"}, {\"title\": \"Anthropic expands its partnership with PwC as it pushes to get Claude into the...\", \"url\": \"https://finance.yahoo.com/sectors/technology/articles/anthropic-expands-partnership-pwc-pushes-130101877.html\", \"description\": \"PwC is one of many major corporates to expand its ties to Anthropic in recent weeks.Matthias...\"}, {\"title\": \"Anthropic's first AI classes with Coursera are here\", \"url\": \"https://tech.yahoo.com/ai/claude/articles/anthropics-first-ai-classes-coursera-140002303.html\", \"description\": \"Coursera debuted two new AI courses with Anthropic on Tuesday, teaching developers and everyday workers how to use Claude.Thomas Fuller / SOPA...\"}, {\"title\": \"I used Anthropic's Interviewer tool to share my AI complaints, and enjoyed it -...\", \"url\": \"https://tech.yahoo.com/ai/claude/articles/used-anthropics-interviewer-tool-share-122100736.html\", \"description\": \"Anthropic ZDNET's key takeaways Anthropic's new Interviewer chatbot tool collects user feedback. The...\"}, {\"title\": \"Anthropic is limiting access to its latest AI model, Mythos. The real risks may...\", \"url\": \"https://sports.yahoo.com/articles/anthropic-limiting-access-latest-ai-150026745.html\", \"description\": \"Anthropic\\u2019s new AI model, Mythos, is causing a stir among cybersecurity experts and policymakers. Th...\"}, {\"title\": \"Elon Musk\\u2019s SpaceX joins forces with Anthropic in AI deal ahead of blockbuster I...\", \"url\": \"https://finance.yahoo.com/sectors/technology/articles/elon-musk-spacex-joins-forces-182839548.html\", \"description\": \"SpaceX said Wednesday it would lease its Colossus 1 artificial intelligence data center to Anthropic...\"}, {\"title\": \"Anthropic Customers Creeped Out by Its Newest Models\", \"url\": \"https://tech.yahoo.com/ai/claude/articles/anthropic-customers-creeped-newest-models-180159017.html\", \"description\": \"Illustration by Tag Hartman-Simkins / Futurism. Source: Shutterstock Earlier this year, Anthropic started rolling out its latest Mythos AI model to a...\"}, {\"title\": \"Anthropic finally, officially launches Claude Sonnet 5\", \"url\": \"https://mashable.com/tech/anthropic-releases-claude-sonnet-5\", \"description\": \"Anthropic released Claude Sonnet 5 on Tuesday, confirming months of speculation about an upgrade to its mid-tier AI model. According to the company's official announcement, the new model is designed ...\"}, {\"title\": \"OpenAI's GPT-5.6 and ChatGPT Work aim to beat Anthropic on price, speed, and productivity\", \"url\": \"https://www.msn.com/en-us/news/technology/openais-gpt-56-and-chatgpt-work-aim-to-beat-anthropic-on-price-speed-and-productivity/ar-AA27D4zC?ocid=BingNewsVerp\", \"description\": \"OpenAI's GPT-5.6 and ChatGPT Work aim to beat Anthropic on price, speed, and productivity ...\"}]"
+      },
+      "created_at": "2026-08-01T07:48:24.986897+00:00"
+    },
+    "7ed22d775c8953de77f70b9b6a61e7451867a53033080a0c52b9cf26142277c6": {
+      "id": "7ed22d775c8953de77f70b9b6a61e7451867a53033080a0c52b9cf26142277c6",
+      "target_url": "search:web:Anthropic competitor funding product 2024",
+      "dataset_id": "search",
+      "snapshot_id": "cached_run",
+      "data": {
+        "content": "[{\"title\": \"Anthropic - Wikipedia\", \"url\": \"https://en.wikipedia.org/wiki/Anthropic\", \"description\": \"Its flagship product is Claude, a series of large language models (LLMs). Anthropic was founded in 2021 by former members of OpenAI, including siblings Daniela ...\"}, {\"title\": \"Amazon to invest another $4 billion in Anthropic, OpenAI's biggest rival\", \"url\": \"https://www.cnbc.com/2024/11/22/amazon-to-invest-another-4-billion-in-anthropic-openais-biggest-rival.html\", \"description\": \"Nov 22, 2024 ... Amazon on Friday announced it would invest an additional $4 billion in Anthropic, the artificial intelligence startup founded by ex-OpenAI research executives.\"}, {\"title\": \"Anthropic raises $30 billion in Series G funding at $380 billion post ...\", \"url\": \"https://www.anthropic.com/news/anthropic-raises-30-billion-series-g-funding-380-billion-post-money-valuation\", \"description\": \"Feb 12, 2026 ... The round was co-led by D. E. Shaw Ventures, Dragoneer, Founders Fund, ICONIQ, and MGX. The investment will fuel the frontier research, product ...\"}, {\"title\": \"The Largest AI Startup Funding Deals Of 2024 - Crunchbase News\", \"url\": \"https://news.crunchbase.com/ai/largest-ai-startup-funding-deals-2024/\", \"description\": \"Jan 2, 2025 ... 6. Anthropic, $4B: Also in November, Amazon agreed to invest another $4 billion in AI startup Anthropic, a ChatGPT rival with an AI assistant ...\"}, {\"title\": \"Sequoia to invest in Anthropic, breaking VC taboo on backing rivals\", \"url\": \"https://techcrunch.com/2026/01/18/sequoia-to-invest-in-anthropic-breaking-vc-taboo-on-backing-rivals-ft/\", \"description\": \"Jan 18, 2026 ... According to the FT, Sequoia is joining a funding round led by Singapore's GIC and U.S. investor Coatue, which are each contributing $1.5 ...\"}, {\"title\": \"The competition between OpenAI and Anthropic doesn't appear to ...\", \"url\": \"https://www.facebook.com/yahoofinance/posts/the-competition-between-openai-and-anthropic-doesnt-appear-to-be-cooling-off-/1319493850045390/\", \"description\": \"Apr 14, 2026 ... Recent posts. . Anthropic closing gap on OpenAI in annualized revenue growth. Brian Hanson \\u25bb Artificial Intelligence LLMs \\u25cb Generative ...\"}, {\"title\": \"OpenAI Debuts $4B AI Services Company As Rival Anthropic Builds ...\", \"url\": \"https://www.crn.com/news/ai/2026/openai-launches-services-business-on-heels-of-similar-anthropic-announcement\", \"description\": \"May 11, 2026 ... ... funding led by a16z. \\u201cWe are building something very unique very ... SPONSORED RESOURCES. Check Point: CISO's Guide to AI in 2024 \\u00b7 Check ...\"}, {\"title\": \"Anthropic History 2026: Claude AI Timeline, Funding & IPO - Taskade\", \"url\": \"https://www.taskade.com/blog/anthropic-claude-history\", \"description\": \"Jan 21, 2026 ... In 2024-2026, Anthropic emerged as OpenAI's most serious competitor thanks to Claude Opus 4.8, Claude Sonnet 4.6, Claude Code Agent Teams ...\"}, {\"title\": \"Anthropic Said to Be in Talks to Raise Funding at a $350 Billion ...\", \"url\": \"https://www.nytimes.com/2026/01/07/technology/anthropic-funding-valuation.html\", \"description\": \"Jan 7, 2026 ... In 2024, Anthropic raised $8 billion from Amazon, its largest investor. Google has invested around $3 billion and controls around 14 percent of ...\"}, {\"title\": \"OpenAI has the largest private tech fundraising round on record ...\", \"url\": \"https://www.facebook.com/cnbc/posts/openai-has-the-largest-private-tech-fundraising-round-on-record-rival-anthropic-/1298746555460068/\", \"description\": \"Feb 12, 2026 ... Rival Anthropic now has the second. Anthropic announced on Thursday the close of a $30 billion funding round at a $380 billion post-money ...\"}]"
+      },
+      "created_at": "2026-08-01T07:48:26.839693+00:00"
+    },
+    "5bd5f44eef75aa41c87490a684a1ceaafc75ef70c3c45a254739a649120e6c94": {
+      "id": "5bd5f44eef75aa41c87490a684a1ceaafc75ef70c3c45a254739a649120e6c94",
+      "target_url": "https://www.anthropic.com/press",
+      "dataset_id": "fetch",
+      "snapshot_id": "cached_run",
+      "data": {
+        "content": "Not Found \\ Anthropic"
+      },
+      "created_at": "2026-08-01T07:48:37.807609+00:00"
+    },
+    "6dc74758fd343aff59c005168b7aa389e1b5c12b72c2cae51c99d8811a9c816d": {
+      "id": "6dc74758fd343aff59c005168b7aa389e1b5c12b72c2cae51c99d8811a9c816d",
+      "target_url": "https://anthropic.com/pricing",
+      "dataset_id": "fetch",
+      "snapshot_id": "cached_run",
+      "data": {
+        "content": "### Free\n\nFree for everyone\n\n- Chat on web, iOS, Android, and on your desktop\n- Generate code and visualize data\n- Write, edit, and create content\n- Ability to search the web\n- Memory across conversations\n- Create files and execute code\n- Unlock more from Claude with desktop extensions\n- Connect Slack and Google Workspace services\n- Integrate any context or tool through connectors with remote MCP\n- Extended thinking for complex work\n\n### Pro\n\n- More usage*\n- Includes Claude Code\n- Includes Claude Cowork\n- Includes Claude Design\n- Includes Claude Science\n- Access to unlimited projects to organize chats and documents\n- Access to Research\n- Ability to use more Claude models\n- Claude for Microsoft 365\n\n### Max\n\nPer month\n\n- Choose 5x or 20x more usage than Pro*\n- Higher output limits for all tasks\n- Early access to advanced Claude features\n- Priority access at high traffic times\n\n[Usage limits](https://support.anthropic.com/en/articles/9797557-usage-limit-best-practices) apply. Prices shown don’t include applicable tax. Price and plans are subject to change at Anthropic's discretion.\n\n[Usage limits](https://support.anthropic.com/en/articles/9797557-usage-limit-best-practices) apply. Price and plans are subject to change at Anthropic's discretion.\n\n### Features and capabilities\n\n\n| Features | Free | Pro | Max 5x | Max 20x | \n|---|---|---|---|---|\n| ## Chat on web, iOS, Android and Desktop | ||||\n| ## Claude Code | ||||\n| ## Claude Cowork | ||||\n| ## Claude Design | ||||\n| ## Claude Science | ||||\n| ## @Claude | ||||\n| ## Ability to search the web | ||||\n| ## Desktop extensions | ||||\n| ## Voice mode | ||||\n| ## Incognito chats | ||||\n| ## User preferences | ||||\n| ## Artifacts | ||||\n| ## Projects | ||||\n| ## Project sharing and collaboration | ||||\n| ## Create and edit files with code execution | ||||\n| ## Research | ||||\n| ## Memory | ||||\n| ## Skills | ||||\n| ## Connectors | ||||\n| ## Web search | ||||\n| ## Enterprise search | ||||\n| ## Claude for Chrome | ||||\n| ## Claude for Microsoft 365 | ||||\n| ## Claude for Microsoft Outlook | \n\n### Security and administration \n\n\n| Features | Free | Pro | Max 5x | Max 20x | \n|---|---|---|---|---|\n| ## Single sign-on (SSO) and domain capture | ||||\n| ## Central billing and administration | ||||\n| ## Admin controls for remote and local connectors | ||||\n| ## Enterprise deployment for the Claude desktop app | ||||\n| ## Role-based access | ||||\n| ## System for Cross-domain Identity Management (SCIM) | ||||\n| ## Audit logs | ||||\n| ## Usage analytics | ||||\n| ## Compliance API | ||||\n| ## HIPAA-ready offering | ||||\n| ## Custom data retention controls | ||||\n| ## Organization wide skills deployment | \n\n### Payment options\n\n\n| Features | Free | Pro | Max 5x | Max 20x | \n|---|---|---|---|---|\n| ## Credit card | n/a | |||\n| ## ACH | ||||\n| ## Invoicing / net terms | ||||\n| ## Billing cycle | n/a | Monthly and annual | Monthly and annual | Monthly and annual | \n| ## Adding seats midterm | n/a | n/a | n/a | n/a | \n\n### Models and usage\n\n\n| Features | Free | Pro | Max 5x | Max 20x | \n|---|---|---|---|---|\n| ## Fable | Usage credits | 50% of weekly limits* | 50% of weekly limits* | |\n| ## Opus | ||||\n| ## Sonnet | ||||\n| ## Haiku | ||||\n| ## Context window | 200k | 200k | 200k | 200k | \n| ## Usage credits | ||||\n| ## Priority access at high traffic times | ||||\n| ## User and organizational level spend controls | ||||\n| ## Model training | Opt-out | Opt-out | Opt-out | Opt-out | \n\n### Team\n\n- Includes Claude Code and Claude Cowork\n- Includes Claude Design\n- Includes Claude Science\n- Connect Microsoft 365, @Claude, and more\n- Enterprise search across your organization\n- Central billing and administration\n- Single sign-on (SSO)\n- Admin controls for remote and local connectors\n- Enterprise deployment for the Claude desktop app\n- No model training on your content by default\n- Mix and match seat types\n\n### Enterprise\n\n- Admins set user and org spend limits\n- Role-based access with fine grained permissioning\n- System for Cross-domain Identity Management (SCIM)\n- Audit logs\n- Compliance API for observability and monitoring\n- Custom data retention controls\n- Network-level access control\n- IP allowlisting\n- HIPAA-ready offering available\n- Claude Security (beta)\n\n[Usage limits](https://support.anthropic.com/en/articles/9797557-usage-limit-best-practices) apply. Prices shown don’t include applicable tax. Price and plans are subject to change at Anthropic's discretion.\n\n[Usage limits](https://support.anthropic.com/en/articles/9797557-usage-limit-best-practices) apply. Price and plans are subject to change at Anthropic's discretion.\n\nStudent and faculty access\n\nComprehensive access for all university members at discounted rates\n\nAcademic research and learning mode\n\nDedicated API credits and educational features for student learning\n\nTraining and enablement\n\nResources for successful adoption across your institution\n\n### Features and capabilities\n\n\n| Features | Team | Enterprise (self-serve) | Enterprise (sales-assisted) | \n|---|---|---|---|\n| ## Chat on web, iOS, Android and Desktop | |||\n| ## Claude Code | |||\n| ## Claude Cowork | |||\n| ## Claude Design | |||\n| ## Claude Science | |||\n| ## @Claude | |||\n| ## Claude Security | |||\n| ## Ability to search the web | |||\n| ## Desktop extensions | |||\n| ## Voice mode | |||\n| ## Incognito chats | |||\n| ## User preferences | |||\n| ## Artifacts | |||\n| ## Projects | |||\n| ## Project sharing and collaboration | |||\n| ## Create and edit files with code execution | |||\n| ## Research | |||\n| ## Memory | |||\n| ## Skills | |||\n| ## Connectors | |||\n| ## Web search | |||\n| ## Enterprise search | |||\n| ## Claude for Chrome | |||\n| ## Claude for Microsoft 365 | |||\n| ## Claude for Microsoft Outlook | \n\n### Security and administration \n\n\n| Features | Team | Enterprise (self-serve) | Enterprise (sales-assisted) | \n|---|---|---|---|\n| ## Single sign-on (SSO) | |||\n| ## Domain verification | |||\n| ## Restrict org creation | |||\n| ## Migrate accounts using your domains | |||\n| ## Central billing and administration | |||\n| ## Admin controls for remote and local connectors | |||\n| ## Enterprise deployment for the Claude desktop app | |||\n| ## Usage analytics | |||\n| ## Organization wide skills deployment | |||\n| ## Domain capture | |||\n| ## Role-based access | |||\n| ## System for Cross-domain Identity Management (SCIM) | |||\n| ## Audit logs | |||\n| ## Compliance API | |||\n| ## Custom data retention controls | |||\n| ## Set org instructions | |||\n| ## HIPAA-ready offering | \n\n### Payment options\n\n\n| Features | Team | Enterprise (self-serve) | Enterprise (sales-assisted) | \n|---|---|---|---|\n| ## Credit card | |||\n| ## ACH | |||\n| ## Invoicing / net terms | |||\n| ## Billing cycle | Monthly and annual | Annual | Annual | \n| ## Adding seats midterm | \n\n### Partnership\n\n\n| Features | Team | Enterprise (self-serve) | Enterprise (sales-assisted) | \n|---|---|---|---|\n| ## AWS Marketplace availability | |||\n| ## Consultation | |||\n| ## Tiered incentives on committed spend | |||\n| ## Trials | |||\n| ## Non-standard terms | |||\n| ## Customer success support at certain spend thresholds | |||\n| ## MSA | \n\n### Models and usage\n\n\n| Features | Team | Enterprise (self-serve) | Enterprise (sales-assisted) | \n|---|---|---|---|\n| ## Fable | |||\n| ## Opus | |||\n| ## Sonnet | |||\n| ## Haiku | |||\n| ## Context window | 200k | 500k | 500k | \n| ## Extra usage | n/a | n/a | |\n| ## Priority access at high traffic times | |||\n| ## User and organizational level spend controls | |||\n| ## Model training | None by default | None by default | None by default | \n\nLatest models\n\n### Fable 5\n\n### Opus 5\n\n### Sonnet 5\n\n*Introductory pricing of $2/$10 per million input/output tokens through August 31, 2026; **$3/$15 standard pricing thereafter.**\n\n### Haiku 4.5\n\n**For workloads that need to run in the US, US-only inference is available at 1.1x pricing for input and output tokens. ****Learn more****.**\n\nGet up to 2.5x faster speeds with fast mode for Opus 5 at 2x standard pricing. [Learn more](https://platform.claude.com/docs/en/about-claude/pricing#fast-mode-pricing).\n\nPrompt caching pricing reflects 5-minute TTL. Learn about [extended prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching#1-hour-cache-duration).\n\nPricing for Claude Platform features\n\nGet more out of Claude with advanced features and capabilities.\n\n#### Managed Agents\n\nBuild and deploy agents at scale with a suite of composable APIs. Standard token rates apply.\n\nCost\n\n$0.08 per session-hour for active runtime\n\n#### Web search\n\nGive Claude access to the latest information from the web. Doesn’t include input and output tokens required to process requests.\n\nCost\n\n$10 / 1K searches\n\n\nCode execution\n\nRun Python code in a sandboxed environment for advanced data analysis. 50 free hours of usage daily per organization.\n\nAdditional hours\n\n$0.05 per hour per container\n\n\nStandard\n\nDefault tier for both piloting and scaling everyday use cases\n\nBatch\n\nFor asynchronous workloads that can be processed together for better efficiency\n\nLegacy models\n\n### Opus 4.8\n\n### Sonnet 4.6\n\n### Opus 4.7\n\n### Opus 4.6\n\n### Sonnet 4.5\n\n### Opus 4.5\n\n### Opus 4.1\n\nPrompt caching pricing reflects 5-minute TTL. Learn about [extended prompt caching](https://docs.claude.com/en/docs/build-with-claude/prompt-caching#pricing)."
+      },
+      "created_at": "2026-08-01T07:48:44.436118+00:00"
     }
   }
 }

@@ -154,9 +154,9 @@ Most companies don't."
 **Screen action:** Fade to black. Text appears:
 
 ```
-WAR ROOM AI
+StratOS AI
 
-github.com/jpablortiz96/stratos-ai
+github.com/pranav-bhagath19/StratOS-AI
 
 Built for Bright Data Web Data UNLOCKED · May 2026
 ```

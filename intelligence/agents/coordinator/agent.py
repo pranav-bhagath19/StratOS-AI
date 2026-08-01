@@ -2,8 +2,8 @@
 
 import json
 
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
+from intelligence.agents.base.llm import get_llm_response, parse_json_from_llm
 
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
@@ -70,13 +70,6 @@ async def run_coordinator(state: AnalysisState) -> dict:
     await ev.emit(analysis_id, "coordinator", "started", "Synthesizing intelligence into Battle Brief…")
     await ev.emit(analysis_id, "coordinator", "thinking", "Evaluating move options…")
 
-    llm = ChatOpenAI(
-        model=settings.openrouter_model,
-        openai_api_key=settings.openrouter_api_key,
-        openai_api_base=settings.openrouter_base_url,
-        max_tokens=2048,
-    )
-
     products_used = list({c["product"] for c in provider_calls})
     provider_summary = f"{len(provider_calls)} calls across: {', '.join(products_used)}"
 
@@ -88,16 +81,13 @@ async def run_coordinator(state: AnalysisState) -> dict:
         f"Open Challenges:\n{json.dumps(challenges, indent=2)}"
     )
 
-    response = await llm.ainvoke([
-        SystemMessage(content=_SYSTEM),
-        HumanMessage(content=human),
-    ])
+    response_content = await get_llm_response(
+        system_msg=_SYSTEM,
+        messages=[HumanMessage(content=human)],
+        max_tokens=2048,
+    )
 
-    raw = response.content.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1].lstrip("json").strip()
-
-    data = json.loads(raw)
+    data = parse_json_from_llm(response_content)
     market_move_score = max(0, min(100, int(data.get("market_move_score", 50))))
     recommended_move = data.get("recommended_move", "MONITOR")
     executive_summary = f"{data.get('headline', '')} {data.get('situation', '')}".strip()

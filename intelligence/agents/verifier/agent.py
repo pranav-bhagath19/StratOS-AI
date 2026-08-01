@@ -2,8 +2,8 @@
 
 import json
 
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
+from intelligence.agents.base.llm import get_llm_response, parse_json_from_llm
 
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
@@ -65,13 +65,6 @@ async def run_verifier(state: AnalysisState) -> dict:
     await ev.emit(analysis_id, "verifier", "started", "Resolving challenges and verifying facts…")
     await ev.emit(analysis_id, "verifier", "thinking", "Cross-referencing data sources…")
 
-    llm = ChatOpenAI(
-        model=settings.openrouter_model,
-        openai_api_key=settings.openrouter_api_key,
-        openai_api_base=settings.openrouter_base_url,
-        max_tokens=2048,
-    )
-
     coverage_lines = [
         f"- {c['product']} ({c['tool']}): {c.get('status', 'unknown')}, {c['latency_ms']}ms"
         for c in provider_calls
@@ -88,16 +81,13 @@ async def run_verifier(state: AnalysisState) -> dict:
         f"Scout Challenges:\n{json.dumps(challenges, indent=2)}"
     )
 
-    response = await llm.ainvoke([
-        SystemMessage(content=_SYSTEM),
-        HumanMessage(content=human),
-    ])
+    response_content = await get_llm_response(
+        system_msg=_SYSTEM,
+        messages=[HumanMessage(content=human)],
+        max_tokens=2048,
+    )
 
-    raw = response.content.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1].lstrip("json").strip()
-
-    data = json.loads(raw)
+    data = parse_json_from_llm(response_content)
     verified_findings = data.get("verified_findings", findings[:2000])
     confidence_score = max(0, min(100, int(data.get("confidence_score", 60))))
 

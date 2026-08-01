@@ -70,8 +70,8 @@ async def run_analysis_fn(ctx: inngest.Context, step: inngest.Step) -> dict:
                      payload=evt.get("payload"),
                      provider_product=evt.get("provider_product"),
                 )
-            except Exception:
-                pass
+            except Exception as db_exc:
+                log.exception("Failed to insert intelligence event into DB during scheduled run: %s", db_exc)
 
         await db.ainsert_brief(analysis_id, {
             "market_move_score": final_state.get("market_move_score", 0),
@@ -86,20 +86,29 @@ async def run_analysis_fn(ctx: inngest.Context, step: inngest.Step) -> dict:
         if schedule_id:
             try:
                 await db.amark_schedule_ran(schedule_id, analysis_id)
-            except Exception:
-                pass
+            except Exception as db_exc:
+                log.exception("Failed to mark schedule %s as ran: %s", schedule_id, db_exc)
 
     except Exception as exc:
-        log.error("Inngest analysis failed: %s", exc)
+        log.exception("Inngest analysis failed: %s", exc)
+        try:
+            await db.ainsert_intelligence_event(
+                analysis_id=analysis_id,
+                agent="coordinator",
+                event_type="failed",
+                message=f"Analysis failed: {exc}",
+            )
+        except Exception as db_exc:
+            log.exception("Failed to insert failed intelligence event into DB: %s", db_exc)
         try:
             await db.aupdate_analysis_status(analysis_id, "failed")
-        except Exception:
-            pass
+        except Exception as db_exc:
+            log.exception("Failed to update analysis status to failed in DB: %s", db_exc)
     finally:
         try:
             await ev.emit_done(analysis_id)
-        except Exception:
-            pass
+        except Exception as ev_exc:
+            log.exception("Failed to emit analysis done event: %s", ev_exc)
 
     return {"analysis_id": analysis_id, "status": "completed"}
 

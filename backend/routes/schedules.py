@@ -24,8 +24,8 @@ async def list_schedules() -> list[dict]:
     """List all active recurring analysis schedules."""
     try:
         return await db.alist_schedules()
-    except Exception:
-        # Table may not exist yet — return empty list gracefully.
+    except Exception as exc:
+        log.warning("Failed to list schedules (table may not exist yet): %s", exc)
         return []
 
 

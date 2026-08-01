@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 
 from fastapi import APIRouter, HTTPException
 from sse_starlette.sse import EventSourceResponse
@@ -15,6 +16,7 @@ from database import client as db
 from backend.schemas.analysis import AnalysisCreate
 
 router = APIRouter(tags=["analyses"])
+log = logging.getLogger(__name__)
 
 # Prevent background tasks from being garbage collected before they finish.
 _running_tasks: set[asyncio.Task] = set()
@@ -61,8 +63,8 @@ async def _run_analysis(
                     payload=evt.get("payload"),
                     provider_product=evt.get("provider_product"),
                 )
-            except Exception:
-                pass
+            except Exception as db_exc:
+                log.exception("Failed to insert intelligence event into DB: %s", db_exc)
 
         # Persist the Battle Brief
         await db.ainsert_brief(analysis_id, {
@@ -76,8 +78,18 @@ async def _run_analysis(
         await db.aupdate_analysis_status(analysis_id, "completed")
 
     except Exception as exc:
+        log.exception(f"Analysis {analysis_id} failed")
         await db.aupdate_analysis_status(analysis_id, "failed")
         await ev.emit(analysis_id, "coordinator", "failed", f"Analysis failed: {exc}")
+        try:
+            await db.ainsert_intelligence_event(
+                analysis_id=analysis_id,
+                agent="coordinator",
+                event_type="failed",
+                message=f"Analysis failed: {exc}",
+            )
+        except Exception:
+            pass
 
     finally:
         await ev.emit_done(analysis_id)
@@ -94,13 +106,14 @@ async def hello_analysis() -> dict:
             "message": "Set OPENROUTER_API_KEY in .env",
         }
     try:
-        results = await provider_manager.search("war room AI hackathon", limit=3)
+        results = await provider_manager.search("stratos ai hackathon", limit=3)
         return {
             "status": "ok",
             "search_reachable": True,
             "sample_titles": [r.get("title", "(no title)") for r in results],
         }
     except Exception as exc:
+        log.warning("Hello health check failed: %s", exc)
         return {"status": "error", "search_reachable": False, "error": str(exc)}
 
 
@@ -334,6 +347,7 @@ async def get_analysis(analysis_id: str) -> dict:
         raise HTTPException(status_code=404, detail="Analysis not found")
     try:
         brief = await db.aget_brief_by_analysis(analysis_id)
-    except Exception:
-        brief = None  # brief may not exist yet — always return 200
+    except Exception as exc:
+        log.warning("Failed to fetch brief for analysis %s (brief may not exist yet): %s", analysis_id, exc)
+        brief = None
     return {"analysis": analysis, "brief": brief}
