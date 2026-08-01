@@ -1,37 +1,142 @@
-# Python
+# ==============================================================================
+# StratOS AI — Master Security & Environment .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Environment Variables, Secrets & Credentials (CRITICAL SECURITY)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Secret Keys, Certificates & Authentication Tokens
+*.pem
+*.key
+*.pfx
+*.p12
+*.asc
+*.cer
+*.crt
+*.csr
+*.kdbx
+*.token
+*.jwt
+.netrc
+.aws/
+.gcp/
+
+# Cloud Service Account Keys & Secret Configs
+*service-account*.json
+*firebase*key*.json
+*credentials*.json
+*secret*.json
+!firebase_local.json
+!backend/firebase_local.json
+
+# ------------------------------------------------------------------------------
+# 2. Local Databases, Runtime State & Patches
+# ------------------------------------------------------------------------------
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+stratos.db
+*.patch
+*.diff
+*.dump
+*.sql
+
+# ------------------------------------------------------------------------------
+# 3. Python & Backend Dependencies / Cache
+# ------------------------------------------------------------------------------
 .venv/
+venv/
+env/
+ENV/
 __pycache__/
 *.py[cod]
-*.pyo
-.env
+*$py.class
 *.egg-info/
+.eggs/
 dist/
 build/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+
+# Python Testing & Quality Assurance Tools
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.hypothesis/
 
-# Node / Next.js
+# ------------------------------------------------------------------------------
+# 4. Node.js, Frontend & Build Artifacts
+# ------------------------------------------------------------------------------
 node_modules/
 .next/
-.turbo/
-*.log
-npm-debug.log*
-pnpm-debug.log*
 out/
+.turbo/
+.pnpm-store/
+tsconfig.tsbuildinfo
 
-# OS
-Thumbs.db
+# Node Package Manager Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ------------------------------------------------------------------------------
+# 5. Logs & Temporary Files
+# ------------------------------------------------------------------------------
+*.log
+logs/
+*.tmp
+*.temp
+tmp/
+temp/
+
+# ------------------------------------------------------------------------------
+# 6. Operating System Files
+# ------------------------------------------------------------------------------
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
 desktop.ini
+ehthumbs.db
 
-# IDE
+# ------------------------------------------------------------------------------
+# 7. IDE, Editor & Developer Tools
+# ------------------------------------------------------------------------------
 .vscode/*
 !.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
 
-# Project
-*.local
-.env.local
-dist/
-coverage/
+# AI & Inngest Local Data
+.inngest/
+.claude/
