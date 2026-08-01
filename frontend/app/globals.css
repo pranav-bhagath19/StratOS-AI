@@ -1,91 +1,81 @@
 @import "tailwindcss";
 
-/* ── StratOS Design System ─────────────────────────────────────────────────
-   Palette intent:
-   - background/card/border: near-black zinc — never pure black, always slightly warm
-   - accent red  oklch(0.55 0.22 27)  → ATTACK state, critical alerts, logo accent only
-   - accent amber oklch(0.72 0.18 85) → ESCALATE/WARNING states only
-   - everything else: zinc scale (monochrome, serious, enterprise)
-   Sharp 1px borders everywhere. No gradients. No glows. No emojis.
+/* ── CryptGen-Inspired Monochrome Design System ─────────────────────────────
+   Strict Monochrome Palette:
+   - Background: Pure Black (#000000)
+   - Surface: Near Black (#080808)
+   - Surface Secondary: (#0d0d0d)
+   - Surface Elevated: (#121212)
+   - Borders: 1px subtle white (rgba(255,255,255,0.08))
+   - Text Primary: Pure White (#ffffff)
+   - Text Secondary: Muted Zinc (#a1a1aa)
+   - Text Muted: (#71717a)
+   NO PURPLE, VIOLET, INDIGO, OR RAINBOW GRADIENTS.
    ────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --radius: 0.125rem;
+  --radius: 0.5rem;
 
-  /* Surfaces */
-  --background:           oklch(0.088 0.004 264);
-  --foreground:           oklch(0.97  0     0  );
+  --background: #000000;
+  --foreground: #ffffff;
 
-  --card:                 oklch(0.105 0.005 264);
-  --card-foreground:      oklch(0.97  0     0  );
+  --card: #080808;
+  --card-foreground: #ffffff;
 
-  --popover:              oklch(0.105 0.005 264);
-  --popover-foreground:   oklch(0.97  0     0  );
+  --popover: #0d0d0d;
+  --popover-foreground: #ffffff;
 
-  /* Primary = zinc-100 (white text on dark bg) */
-  --primary:              oklch(0.97  0     0  );
-  --primary-foreground:   oklch(0.088 0.004 264);
+  --primary: #ffffff;
+  --primary-foreground: #000000;
 
-  /* Secondary = zinc-800 surface */
-  --secondary:            oklch(0.17  0.006 264);
-  --secondary-foreground: oklch(0.97  0     0  );
+  --secondary: #121212;
+  --secondary-foreground: #ffffff;
 
-  /* Muted = zinc-700 */
-  --muted:                oklch(0.17  0.006 264);
-  --muted-foreground:     oklch(0.52  0.006 264);
+  --muted: #121212;
+  --muted-foreground: #a1a1aa;
 
-  /* Accent = strategic red (ATTACK / critical only) */
-  --accent:               oklch(0.55  0.22  27 );
-  --accent-foreground:    oklch(0.97  0     0  );
+  --accent: #27272a;
+  --accent-foreground: #ffffff;
 
-  /* Destructive */
-  --destructive:          oklch(0.45  0.20  27 );
-  --destructive-foreground: oklch(0.97 0    0  );
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
 
-  /* Structural */
-  --border:               oklch(0.22  0.005 264);
-  --input:                oklch(0.17  0.006 264);
-  --ring:                 oklch(0.55  0.22  27 );
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: rgba(255, 255, 255, 0.2);
 
-  /* Charts (score gauge + sparklines Day 3) */
-  --chart-1:              oklch(0.55  0.22  27 );   /* red   — danger  */
-  --chart-2:              oklch(0.72  0.18  85 );   /* amber — warning */
-  --chart-3:              oklch(0.65  0.15 200 );   /* blue  — neutral */
-  --chart-4:              oklch(0.62  0.16 155 );   /* green — safe    */
-  --chart-5:              oklch(0.48  0.10 270 );   /* purple          */
+  --chart-1: #ef4444;   /* ATTACK / Danger */
+  --chart-2: #f59e0b;   /* ESCALATE / Warning */
+  --chart-3: #10b981;   /* Safe / Success */
+  --chart-4: #38bdf8;   /* MONITOR / Info */
+  --chart-5: #a1a1aa;   /* Muted / Neutral */
 }
 
-/* ── Tailwind v4 theme registration ─────────────────────────────────────── */
 @theme inline {
-  --radius-sm:  calc(var(--radius) - 2px);
-  --radius-md:  var(--radius);
-  --radius-lg:  calc(var(--radius) + 4px);
-  --radius-xl:  calc(var(--radius) + 8px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 
-  --color-background:              var(--background);
-  --color-foreground:              var(--foreground);
-  --color-card:                    var(--card);
-  --color-card-foreground:         var(--card-foreground);
-  --color-popover:                 var(--popover);
-  --color-popover-foreground:      var(--popover-foreground);
-  --color-primary:                 var(--primary);
-  --color-primary-foreground:      var(--primary-foreground);
-  --color-secondary:               var(--secondary);
-  --color-secondary-foreground:    var(--secondary-foreground);
-  --color-muted:                   var(--muted);
-  --color-muted-foreground:        var(--muted-foreground);
-  --color-accent:                  var(--accent);
-  --color-accent-foreground:       var(--accent-foreground);
-  --color-destructive:             var(--destructive);
-  --color-destructive-foreground:  var(--destructive-foreground);
-  --color-border:                  var(--border);
-  --color-input:                   var(--input);
-  --color-ring:                    var(--ring);
-  --color-chart-1:                 var(--chart-1);
-  --color-chart-2:                 var(--chart-2);
-  --color-chart-3:                 var(--chart-3);
-  --color-chart-4:                 var(--chart-4);
-  --color-chart-5:                 var(--chart-5);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -102,4 +92,15 @@
     font-family: var(--font-sans), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
+}
+
+/* ── Marquee Animation for Tech Strip & Testimonials ───────────────────── */
+@keyframes scroll {
+  to {
+    transform: translate(calc(-50% - 0.5rem));
+  }
+}
+
+.animate-scroll {
+  animation: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
 }

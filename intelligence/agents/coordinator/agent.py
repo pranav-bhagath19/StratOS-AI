@@ -3,7 +3,8 @@
 import json
 
 from langchain_core.messages import HumanMessage
-from intelligence.agents.base.llm import get_llm_response, parse_json_from_llm
+from intelligence.agents.base.llm import get_llm_response
+from intelligence.agents.base.json_parse import extract_json
 
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
@@ -40,7 +41,7 @@ Market Move Score calibration:
 - 21–40   Low — situational awareness only
 - 0–20    Noise — no action needed
 
-Output ONLY valid JSON — no markdown fences, no explanation:
+Respond with ONLY the JSON object/array. No preamble, no explanation, no markdown code fences, no text before or after the JSON:
 {
   "market_move_score": 72,
   "recommended_move": "ATTACK",
@@ -87,7 +88,7 @@ async def run_coordinator(state: AnalysisState) -> dict:
         max_tokens=2048,
     )
 
-    data = parse_json_from_llm(response_content)
+    data = extract_json(response_content)
     market_move_score = max(0, min(100, int(data.get("market_move_score", 50))))
     recommended_move = data.get("recommended_move", "MONITOR")
     executive_summary = f"{data.get('headline', '')} {data.get('situation', '')}".strip()

@@ -1,4 +1,16 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
+import { Logo } from "@/components/shared/logo"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card"
+import { Sparkles, Shield, ArrowRight, CheckCircle2 } from "lucide-react"
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "")
 
@@ -32,12 +44,12 @@ async function getData(id: string): Promise<{ analysis: Analysis; brief: Brief }
   }
 }
 
-const MOVE_COLORS: Record<string, string> = {
-  ATTACK: "#ef4444",
-  DEFEND: "#f59e0b",
-  ESCALATE: "#f87171",
-  WAIT: "#71717a",
-  MONITOR: "#38bdf8",
+const MOVE_STYLES: Record<string, string> = {
+  ATTACK: "text-red-400 border-red-500/40 bg-red-500/10 shadow-lg",
+  DEFEND: "text-amber-400 border-amber-500/40 bg-amber-500/10 shadow-lg",
+  ESCALATE: "text-red-300 border-red-400/40 bg-red-400/10 shadow-lg",
+  WAIT: "text-zinc-400 border-zinc-600 bg-zinc-800/40",
+  MONITOR: "text-sky-400 border-sky-500/40 bg-sky-500/10 shadow-lg",
 }
 
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
@@ -47,106 +59,179 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
 
   const { analysis, brief } = data
   const move = (brief.recommended_move ?? "MONITOR").toUpperCase()
-  const moveColor = MOVE_COLORS[move] ?? "#71717a"
+  const moveStyle = MOVE_STYLES[move] ?? "text-zinc-400 border-zinc-600 bg-zinc-800/40"
   const actions = brief.action_pack.actions ?? {}
-  const scoreColor =
-    brief.market_move_score >= 80
-      ? "#ef4444"
-      : brief.market_move_score >= 60
-        ? "#f59e0b"
-        : brief.market_move_score >= 40
-          ? "#d4d4d4"
-          : "#71717a"
+
+  const createdDate = new Date(analysis.created_at).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  })
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#d4d4d4", fontFamily: "'Courier New', monospace" }}>
-      {/* Nav */}
-      <div style={{ borderBottom: "1px solid #27272a", padding: "0 24px" }}>
-        <div style={{ maxWidth: 800, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontWeight: "bold", letterSpacing: 2, color: "#fff", fontSize: 14 }}>
-            StratOS AI <span style={{ color: "#ef4444" }}>AI</span>
-          </span>
-          <span style={{ fontSize: 9, color: "#555", letterSpacing: 2 }}>
+    <div className="relative min-h-screen bg-black text-white flex flex-col font-sans overflow-hidden">
+      {/* Grid Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+
+      {/* Navigation Header */}
+      <nav className="relative z-20 border-b border-white/10 bg-black px-6 sticky top-0">
+        <div className="max-w-4xl mx-auto h-16 flex items-center justify-between">
+          <Logo />
+          <span className="font-mono text-[10px] text-zinc-300 border border-white/10 bg-zinc-950 px-3 py-1 rounded-full uppercase">
             PUBLIC BATTLE BRIEF
           </span>
         </div>
-      </div>
+      </nav>
 
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "40px 24px 80px" }}>
-        {/* Analysis header */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 9, letterSpacing: 2, color: "#555", marginBottom: 6, textTransform: "uppercase" }}>
-            {analysis.analysis_type.replace("_", " ")} · {new Date(analysis.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+      {/* Main Content Container */}
+      <main className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-6 pt-10 pb-20 space-y-8">
+        {/* Analysis Header */}
+        <div className="border-b border-white/10 pb-6 flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs font-bold text-zinc-500 tracking-widest uppercase">
+                STRATOS AI · INTELLIGENCE REPORT
+              </span>
+              <span className="font-mono text-[10px] text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 rounded">
+                STATUS: VERIFIED
+              </span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+              {analysis.target}
+            </h1>
+            <p className="font-mono text-xs text-zinc-500">
+              {analysis.analysis_type.toUpperCase().replace("_", " ")} · {createdDate}
+            </p>
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: "bold", color: "#fff", margin: 0 }}>{analysis.target}</h1>
+
+          <div className="text-right space-y-1">
+            <span className="font-mono text-xs text-zinc-500 block">CONFIDENCE VERIFICATION</span>
+            <span className="font-mono text-3xl font-extrabold text-white">{brief.confidence_score}%</span>
+          </div>
         </div>
 
-        {/* Score block */}
-        <div style={{ border: "1px solid #333", background: "#111", padding: 24, marginBottom: 24, display: "flex", gap: 40, alignItems: "center" }}>
-          <div>
-            <div style={{ fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 4 }}>MARKET MOVE SCORE</div>
-            <div style={{ fontSize: 56, fontWeight: "bold", color: scoreColor, lineHeight: 1 }}>
-              {brief.market_move_score}
+        {/* Scores & Move Box */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-zinc-950 p-6 rounded-xl border border-white/10">
+          <div className="space-y-1">
+            <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest">
+              MARKET MOVE SCORE
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="font-mono text-5xl font-extrabold text-white">{brief.market_move_score}</span>
+              <span className="font-mono text-xl text-zinc-600">/ 100</span>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 8 }}>RECOMMENDED MOVE</div>
-            <div style={{ fontSize: 14, fontWeight: "bold", letterSpacing: 3, color: moveColor, border: `1px solid ${moveColor}40`, padding: "8px 20px" }}>
+
+          <div className="space-y-2">
+            <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest block">
+              RECOMMENDED STRATEGIC MOVE
+            </span>
+            <span className={`inline-block font-mono text-lg font-extrabold tracking-widest px-6 py-2 rounded-lg border ${moveStyle}`}>
               {move}
-            </div>
-          </div>
-          <div>
-            <div style={{ fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 4 }}>CONFIDENCE</div>
-            <div style={{ fontSize: 24, color: "#aaa" }}>{brief.confidence_score}<span style={{ fontSize: 12, color: "#555" }}>/100</span></div>
+            </span>
           </div>
         </div>
 
         {/* Situation */}
         {brief.action_pack.headline && (
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 8 }}>SITUATION</div>
-            <p style={{ fontSize: 14, color: "#fff", fontWeight: "bold", marginBottom: 8 }}>{brief.action_pack.headline}</p>
+          <div className="space-y-3 border-t border-white/10 pt-6">
+            <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">
+              01 // SITUATION ASSESSMENT
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug">
+              {brief.action_pack.headline}
+            </h2>
             {brief.action_pack.situation && (
-              <p style={{ fontSize: 12, color: "#999", lineHeight: 1.7 }}>{brief.action_pack.situation}</p>
+              <p className="text-sm text-zinc-300 leading-relaxed max-w-3xl">
+                {brief.action_pack.situation}
+              </p>
             )}
           </div>
         )}
 
-        {/* Actions grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 24 }}>
-          {([
-            { label: "IMMEDIATE", items: actions.immediate ?? [], color: "#ef4444" },
-            { label: "THIS WEEK", items: actions.this_week ?? [], color: "#f59e0b" },
-            { label: "WATCH", items: actions.watch ?? [], color: "#38bdf8" },
-          ] as const).map(({ label, items, color }) => (
-            <div key={label} style={{ border: "1px solid #333", background: "#111", padding: 16 }}>
-              <div style={{ fontSize: 9, color, letterSpacing: 2, marginBottom: 12 }}>{label}</div>
-              {items.length === 0
-                ? <div style={{ color: "#333" }}>—</div>
-                : items.map((item, i) => (
-                  <div key={i} style={{ fontSize: 11, color: "#aaa", marginBottom: 6, paddingLeft: 16, position: "relative" }}>
-                    <span style={{ position: "absolute", left: 0, color }}>→</span>
-                    {item}
-                  </div>
-                ))}
-            </div>
-          ))}
+        {/* 3-Column Actions Grid */}
+        <div className="space-y-3 border-t border-white/10 pt-6">
+          <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">
+            02 // RECOMMENDED ACTIONS
+          </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <ActionColumn label="IMMEDIATE" items={actions.immediate ?? []} accentClass="text-red-400 border-red-500/30 bg-red-500/5" />
+            <ActionColumn label="THIS WEEK" items={actions.this_week ?? []} accentClass="text-amber-400 border-amber-500/30 bg-amber-500/5" />
+            <ActionColumn label="WATCH" items={actions.watch ?? []} accentClass="text-sky-400 border-sky-500/30 bg-sky-500/5" />
+          </div>
         </div>
 
         {/* Rationale */}
         {brief.action_pack.coordinator_rationale && (
-          <div style={{ borderTop: "1px solid #333", paddingTop: 16, marginBottom: 24 }}>
-            <div style={{ fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 8 }}>COORDINATOR RATIONALE</div>
-            <p style={{ fontSize: 11, color: "#777", lineHeight: 1.7 }}>{brief.action_pack.coordinator_rationale}</p>
+          <div className="space-y-3 border-t border-white/10 pt-6">
+            <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">
+              03 // COORDINATOR RATIONALE
+            </span>
+            <div className="bg-zinc-950 p-5 rounded-xl border border-white/10 font-mono text-xs text-zinc-300 leading-relaxed">
+              {brief.action_pack.coordinator_rationale}
+            </div>
           </div>
         )}
 
-        {/* Footer */}
-        <div style={{ borderTop: "1px solid #27272a", paddingTop: 16, fontSize: 9, color: "#444", display: "flex", justifyContent: "space-between" }}>
-          <span>Generated by StratOS AI · Powered by Bright Data</span>
-          <span>ANALYSIS {id.slice(0, 8).toUpperCase()}</span>
+        {/* Public CTA Banner */}
+        <div className="mt-12 text-center bg-zinc-950 p-8 rounded-2xl border border-white/15 shadow-xl space-y-4">
+          <p className="text-base font-bold text-white">Want autonomous competitive intelligence for your team?</p>
+          <p className="text-xs text-zinc-400 max-w-md mx-auto">Run live multi-agent analyses on any competitor or strategic target.</p>
+          <div className="flex justify-center pt-2">
+            <Button asChild variant="primary" size="lg">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                Open StratOS Console
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="relative z-20 border-t border-white/10 bg-black px-6 py-5">
+        <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-4">
+          <span className="font-mono text-xs text-zinc-500 tracking-wider">
+            StratOS AI · Autonomous Competitive Intelligence
+          </span>
+          <a
+            href="https://github.com/pranav-bhagath19/StratOS-AI"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-xs text-zinc-400 hover:text-white transition-colors tracking-wider"
+          >
+            github.com/pranav-bhagath19/StratOS-AI ↗
+          </a>
+        </div>
+      </footer>
     </div>
+  )
+}
+
+function ActionColumn({
+  label,
+  items,
+  accentClass,
+}: {
+  label: string
+  items: string[]
+  accentClass: string
+}) {
+  return (
+    <Card className={`border p-4 bg-zinc-950 ${accentClass}`}>
+      <p className="font-mono text-[10px] font-bold tracking-wider mb-3 uppercase">{label}</p>
+      {items.length === 0 ? (
+        <p className="font-mono text-xs text-zinc-600">—</p>
+      ) : (
+        <ul className="space-y-2">
+          {items.map((item, i) => (
+            <li key={i} className="flex items-start gap-2">
+              <span className="font-mono text-xs font-bold mt-0.5 shrink-0">→</span>
+              <span className="text-xs text-zinc-300 leading-relaxed">{item}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   )
 }

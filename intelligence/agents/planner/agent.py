@@ -4,7 +4,8 @@ import json
 import logging
 
 from langchain_core.messages import HumanMessage
-from intelligence.agents.base.llm import get_llm_response, parse_json_from_llm
+from intelligence.agents.base.llm import get_llm_response
+from intelligence.agents.base.json_parse import extract_json
 
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState, ResearchStep
@@ -91,7 +92,7 @@ Rules:
    GOOD: "Stripe regulatory EU UK compliance 2024"
 8. Queries and URLs must be specific to the actual target — no placeholders.
 
-Output ONLY a JSON array — no markdown fences, no explanation:
+Respond with ONLY the JSON object/array. No preamble, no explanation, no markdown code fences, no text before or after the JSON.
 [
   {"step": 1, "goal": "...", "tool": "serp_search", "query_or_url": "...", "result": null, "ok": null},
   ...
@@ -298,7 +299,7 @@ async def run_planner(state: AnalysisState) -> dict:
         max_tokens=2048,
     )
 
-    plan: list[ResearchStep] = parse_json_from_llm(response_content)
+    plan: list[ResearchStep] = extract_json(response_content)
 
     # Post-processing guarantee: every plan must cover all 5 Bright Data products.
     plan = _ensure_all_products(plan, analysis_type, target)

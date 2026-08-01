@@ -80,34 +80,3 @@ async def get_llm_response(system_msg: str, messages: list, max_tokens: int) -> 
     else:
         raise RuntimeError("No models were executed successfully due to errors.")
 
-
-def parse_json_from_llm(raw: str):
-    """Safely extracts and parses JSON from raw LLM response strings."""
-    import json
-    import re
-
-    raw = raw.strip()
-    try:
-        return json.loads(raw)
-    except Exception:
-        pass
-
-    code_block_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", raw, re.IGNORECASE)
-    if code_block_match:
-        extracted = code_block_match.group(1).strip()
-        try:
-            return json.loads(extracted)
-        except Exception:
-            pass
-
-    first_bracket = min([i for i in (raw.find('['), raw.find('{')) if i != -1], default=-1)
-    last_bracket = max([raw.rfind(']'), raw.rfind('}')])
-    if first_bracket != -1 and last_bracket != -1 and last_bracket > first_bracket:
-        extracted = raw[first_bracket:last_bracket + 1]
-        try:
-            return json.loads(extracted)
-        except Exception:
-            pass
-
-    return json.loads(raw)
-

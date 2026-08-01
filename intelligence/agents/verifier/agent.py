@@ -3,7 +3,8 @@
 import json
 
 from langchain_core.messages import HumanMessage
-from intelligence.agents.base.llm import get_llm_response, parse_json_from_llm
+from intelligence.agents.base.llm import get_llm_response
+from intelligence.agents.base.json_parse import extract_json
 
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
@@ -47,7 +48,7 @@ Confidence scale (apply to what you DID find):
 - 40–59: Partial — directional signals but no specific verifiable facts
 - Below 40: Genuinely insufficient — only speculation or hearsay found (NOT same as "few sources")
 
-Output ONLY valid JSON — no markdown fences, no explanation:
+Respond with ONLY the JSON object/array. No preamble, no explanation, no markdown code fences, no text before or after the JSON:
 {
   "verified_findings": "## Verified Intelligence\\n...",
   "confidence_score": 72,
@@ -87,7 +88,7 @@ async def run_verifier(state: AnalysisState) -> dict:
         max_tokens=2048,
     )
 
-    data = parse_json_from_llm(response_content)
+    data = extract_json(response_content)
     verified_findings = data.get("verified_findings", findings[:2000])
     confidence_score = max(0, min(100, int(data.get("confidence_score", 60))))
 

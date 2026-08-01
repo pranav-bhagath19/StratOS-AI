@@ -3,7 +3,8 @@
 import json
 
 from langchain_core.messages import HumanMessage
-from intelligence.agents.base.llm import get_llm_response, parse_json_from_llm
+from intelligence.agents.base.llm import get_llm_response
+from intelligence.agents.base.json_parse import extract_json
 
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
@@ -19,7 +20,7 @@ Focus on:
 - Contradictions: Do any findings conflict with each other?
 - Bias or incompleteness: Is any claim likely skewed?
 
-Output ONLY a JSON array of challenge strings — no markdown, no explanation:
+Respond with ONLY the JSON object/array. No preamble, no explanation, no markdown code fences, no text before or after the JSON.
 ["Challenge 1...", "Challenge 2...", ...]"""
 
 
@@ -37,7 +38,7 @@ async def run_scout(state: AnalysisState) -> dict:
         max_tokens=1024,
     )
 
-    challenges: list[str] = parse_json_from_llm(response_content)
+    challenges: list[str] = extract_json(response_content)
 
     await ev.emit(
         analysis_id, "scout", "completed",
