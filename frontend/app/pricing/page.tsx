@@ -79,7 +79,7 @@ export default function PricingPage() {
         {/* Header */}
         <div className="text-center mb-14">
           <p className="font-mono text-[10px] text-zinc-600 tracking-widest mb-3">
-            PRICING · WAR ROOM AI
+            PRICING · StratOS AI
           </p>
           <h1 className="text-4xl font-bold tracking-tight text-zinc-100 mb-3">
             Intelligence at every scale
@@ -97,11 +97,10 @@ export default function PricingPage() {
           {TIERS.map((tier) => (
             <div
               key={tier.name}
-              className={`relative border p-7 flex flex-col ${
-                tier.popular
+              className={`relative border p-7 flex flex-col ${tier.popular
                   ? "border-zinc-400 bg-zinc-900/60"
                   : "border-zinc-800 bg-zinc-900/20"
-              }`}
+                }`}
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -138,12 +137,11 @@ export default function PricingPage() {
 
               {/* CTA */}
               <a
-                href={tier.name === "Enterprise" ? "mailto:hello@stratos.ai" : "/stratos"}
-                className={`flex items-center justify-center gap-2 py-2.5 font-mono text-xs font-semibold tracking-widest transition-colors ${
-                  tier.popular
+                href={tier.name === "Enterprise" ? "mailto:hello@stratos.ai" : "/dashboard"}
+                className={`flex items-center justify-center gap-2 py-2.5 font-mono text-xs font-semibold tracking-widest transition-colors ${tier.popular
                     ? "bg-zinc-100 text-zinc-900 hover:bg-white"
                     : "border border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white"
-                }`}
+                  }`}
               >
                 {tier.cta}
                 <ArrowRight className="h-3 w-3" />
@@ -162,7 +160,7 @@ export default function PricingPage() {
           </p>
           <div className="flex items-center justify-center gap-6 mt-6 flex-wrap">
             <Link
-              href="/stratos"
+              href="/dashboard"
               className="font-mono text-[10px] text-zinc-500 hover:text-zinc-200 transition-colors"
             >
               Try the StratOS →

@@ -85,7 +85,7 @@ export default function Home() {
         {/* CTAs */}
         <div className="flex items-center gap-6">
           <Link
-            href="/stratos"
+            href="/dashboard"
             className="inline-flex items-center gap-2 bg-zinc-100 text-zinc-950 font-mono text-sm font-semibold px-5 py-2.5 hover:bg-white transition-colors"
           >
             Open StratOS

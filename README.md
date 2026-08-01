@@ -427,6 +427,6 @@ StratOS AI originated as a functional prototype for autonomous competitive intel
 
 MIT — see [LICENSE](LICENSE).
 
-Built by [Juan Pablo Enriquez Ortiz](https://github.com/jpablortiz96) — full-stack
-developer and AI/data educator, based in Cali, Colombia. Contact via
-[GitHub issues](https://github.com/jpablortiz96/stratos-ai/issues).
+Built by [Pranav-Bhagath
+](https://github.com/pranav-bhagath19) — based in Hyderabad, India. Contact via
+[GitHub issues](https://github.com/pranav-bhagath19/StratOS-AI/issues).

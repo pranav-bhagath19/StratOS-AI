@@ -53,10 +53,10 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
     brief.market_move_score >= 80
       ? "#ef4444"
       : brief.market_move_score >= 60
-      ? "#f59e0b"
-      : brief.market_move_score >= 40
-      ? "#d4d4d4"
-      : "#71717a"
+        ? "#f59e0b"
+        : brief.market_move_score >= 40
+          ? "#d4d4d4"
+          : "#71717a"
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#d4d4d4", fontFamily: "'Courier New', monospace" }}>
@@ -64,7 +64,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
       <div style={{ borderBottom: "1px solid #27272a", padding: "0 24px" }}>
         <div style={{ maxWidth: 800, margin: "0 auto", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span style={{ fontWeight: "bold", letterSpacing: 2, color: "#fff", fontSize: 14 }}>
-            WAR ROOM <span style={{ color: "#ef4444" }}>AI</span>
+            StratOS AI <span style={{ color: "#ef4444" }}>AI</span>
           </span>
           <span style={{ fontSize: 9, color: "#555", letterSpacing: 2 }}>
             PUBLIC BATTLE BRIEF
@@ -124,11 +124,11 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
               {items.length === 0
                 ? <div style={{ color: "#333" }}>—</div>
                 : items.map((item, i) => (
-                    <div key={i} style={{ fontSize: 11, color: "#aaa", marginBottom: 6, paddingLeft: 16, position: "relative" }}>
-                      <span style={{ position: "absolute", left: 0, color }}>→</span>
-                      {item}
-                    </div>
-                  ))}
+                  <div key={i} style={{ fontSize: 11, color: "#aaa", marginBottom: 6, paddingLeft: 16, position: "relative" }}>
+                    <span style={{ position: "absolute", left: 0, color }}>→</span>
+                    {item}
+                  </div>
+                ))}
             </div>
           ))}
         </div>

@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     firebase_client_email: str = ""
     firebase_client_id: str = ""
     firebase_client_cert_url: str = ""
+    firebase_api_key: str = ""
+    firebase_auth_domain: str = ""
+    firebase_storage_bucket: str = ""
+    firebase_app_id: str = ""
+
 
     # Timeouts
     search_timeout: float = 15.0
