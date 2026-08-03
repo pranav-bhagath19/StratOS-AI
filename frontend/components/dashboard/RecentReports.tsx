@@ -67,7 +67,7 @@ export function SchedulesPanel({
         <Card className="border border-white/10 bg-zinc-950 p-12 text-center">
           <Calendar className="h-8 w-8 text-zinc-600 mx-auto mb-3" />
           <p className="font-mono text-xs text-zinc-400 font-semibold">NO SCHEDULES FOUND</p>
-          <p className="font-mono text-[10px] text-zinc-600 mt-1">Run <code className="text-zinc-400">api/scripts/create_analysis_schedules.sql</code> to initialize schedules table.</p>
+          <p className="font-mono text-[10px] text-zinc-600 mt-1">Create a scheduled analysis via the UI or API to automate recurring runs.</p>
         </Card>
       ) : (
         <div className="space-y-3">
