@@ -7,12 +7,12 @@
 **StratOS AI turns live public-web signals into verified, recurring competitive
 intelligence and decisive executive action briefs.**
 
-[Live Demo](https://stratos-ai.vercel.app) · [Sample Briefs](docs/sample-briefs/) · [Design Partners](docs/DESIGN_PARTNER_PROGRAM.md)
+[Live Demo](https://stratos-ai.vercel.app) · [Sample Briefs](docs/sample-briefs/) · [Design Partners](docs/development/DESIGN_PARTNER_PROGRAM.md)
 
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-black?style=flat-square)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square)
 ![LangGraph](https://img.shields.io/badge/LangGraph-0.2-1c3d5a?style=flat-square)
-![Claude](https://img.shields.io/badge/Claude-Sonnet-D97757?style=flat-square)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-Claude%203.5-D97757?style=flat-square)
 ![Stage](https://img.shields.io/badge/stage-pre--seed%20·%20working%20MVP-22c55e?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-zinc?style=flat-square)
 
@@ -40,7 +40,7 @@ launch is noticed, the window to respond has often already closed.
 
 The signal exists in real time on the public web. The bottleneck is **reliable access
 to that web at scale** — much of the highest-value content sits behind bot protection,
-JavaScript rendering, or geographic restrictions — combined with the analyst time to
+JavaScript rendering, or complex page layouts — combined with the analyst time to
 research it, challenge it, verify it, and turn it into a decision.
 
 Existing tools each miss one leg of that: one-shot answer engines don't monitor;
@@ -52,9 +52,7 @@ them deliver a *recurring, verified, decisive* recommendation.
 ## The product
 
 Point StratOS AI at a target — a competitor or a strategic account — and it runs a
-five-agent pipeline that plans the research, executes it across the live web via Bright
-Data, adversarially challenges the findings, scores its own confidence, and commits to
-an **Executive Strategic Brief**:
+five-agent pipeline that plans the research, executes it across the live web via modular intelligence tools, adversarially challenges the findings, scores its own confidence, and commits to an **Executive Strategic Brief**:
 
 - **Market Move Score** (0–100) — how urgent/material the signal is
 - **Recommended Move** — ATTACK / DEFEND / ESCALATE / WAIT / MONITOR (a decision, not a summary)
@@ -87,8 +85,8 @@ that reuse the same engine, not separate businesses.
 ## Core competitive-intelligence workflow
 
 1. **Choose a target** — a competitor domain or a strategic account.
-2. **Pick a analysis type** — Account Pulse is the flagship CI workflow.
-3. **Deploy** — the five-agent pipeline runs and streams progress live.
+2. **Pick an analysis type** — Account Pulse is the flagship CI workflow.
+3. **Deploy** — the five-agent pipeline runs and streams progress live via Server-Sent Events (SSE).
 4. **Read the brief** — score, move, confidence, action pack, rationale, provenance.
 5. **Distribute** — Markdown / PDF / share link / Slack.
 6. **Recur** — schedule the analysis so the brief refreshes and diffs against the last run.
@@ -101,36 +99,37 @@ that reuse the same engine, not separate businesses.
 graph LR
   Start([Analysis: target + type]) --> Planner
   Planner[Planner<br/>NL to structured plan] --> Researcher
-  Researcher[Researcher<br/>adaptive Bright Data routing] --> Scout
+  Researcher[Researcher<br/>adaptive provider routing] --> Scout
   Scout[Scout<br/>challenges findings] --> Verifier
   Verifier[Verifier<br/>0-100 confidence per claim] --> Coordinator
-  Coordinator[Coordinator<br/>synthesizes Battle Brief] --> Output([Score + Move + Action Pack])
+  Coordinator[Coordinator<br/>synthesizes Executive Brief] --> Output([Score + Move + Action Pack])
 ```
 
 | Agent | Role |
 |-------|------|
-| **Planner** | Parses the natural-language target + analysis type into a structured research plan, assigning a data-access capability to each step. |
-| **Researcher** | Executes the plan across the live web via Bright Data, applying per-capability timeouts, a retry policy, and content-quality checks. |
-| **Scout** | Adversarially challenges each finding — what is missing, unverified, or inconsistent. |
+| **Planner** | Parses the natural-language target + analysis type into a structured research plan, assigning data-access capabilities to each step. |
+| **Researcher** | Executes the plan across search, HTTP fetchers, headless browsers, and official APIs, applying per-capability timeouts and retries. |
+| **Scout** | Adversarially challenges each finding — identifying missing, unverified, or inconsistent claims. |
 | **Verifier** | Resolves challenges and scores confidence by *evidence quality*, not step count. Empty/timed-out steps limit scope; they don't by themselves lower confidence. |
-| **Coordinator** | Synthesizes the Battle Brief and commits to a move with an explicit rationale. |
+| **Coordinator** | Synthesizes the Executive Strategic Brief and commits to a move with an explicit rationale. |
 
-The LLM layer uses Anthropic Claude (Sonnet) via `langchain-anthropic`, orchestrated
-with LangGraph. See [ARCHITECTURE.md](ARCHITECTURE.md).
+The LLM layer uses Anthropic Claude Sonnet via OpenRouter, orchestrated
+with LangGraph. See [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
 
 ---
 
 ## Modular Intelligence Layer
 
-StratOS AI features a provider-agnostic **Intelligence Layer** that separates the AI agent orchestration from specific data-gathering APIs, browsers, or search engines. Every external capability is a pluggable, interchangeable module:
+StratOS AI features a provider-agnostic **Intelligence Layer** (`intelligence/tools/manager.py`) that separates AI agent orchestration from specific web, browser, or search APIs. Every external capability is a pluggable, interchangeable module:
 
 | Capability | Supported Swappable Providers |
 |------------|--------------------------------|
-| **Search Providers** | Brave Search (default), DuckDuckGo (fallback), Tavily, Exa, Bright Data SERP |
-| **Fetch Providers** | HTTPX Requests (default), Firecrawl, Bright Data Web Unlocker |
-| **Browser Providers** | Playwright (default local headless Chromium), Bright Data Scraping Browser |
-| **Extraction Providers** | HTML Boilerplate cleaner, markdownify, JSON structured extraction |
-| **Official APIs** | Direct endpoint connectors for GitHub, Reddit, RSS, news, company metadata |
+| **Search Providers** | DuckDuckGo Search (default keyless search), Brave Search (optional API key fallback) |
+| **Fetch Providers** | Async AioHttp (default high-concurrency fetch), Requests HTML |
+| **Browser Providers** | Playwright (local headless Chromium for JS rendering & bot-protected pages) |
+| **Extraction Providers** | BeautifulSoup (HTML structure cleaner), Trafilatura (main text extractor), Markdownify |
+| **Official APIs** | Direct endpoint connectors for GitHub API, Reddit API, RSS feeds |
+| **Storage & Cache** | Local file DB (`firebase_local.json`) or Cloud Firestore (24h TTL for fetched profiles) |
 
 ---
 
@@ -138,11 +137,10 @@ StratOS AI features a provider-agnostic **Intelligence Layer** that separates th
 
 The design principle is: **route each research task to the minimum reliable provider** for that task, based on source type, rendering requirements, latency, accessibility, and expected information value.
 
-1. **Official APIs** are prioritized first if the target URL matches (e.g. GitHub or Reddit).
-2. **Search Providers** execute queries with automatic failover (Brave Search ➔ DuckDuckGo fallback).
-3. **Fetch & Browser** actions use a dynamic decision flow: static pages use fast Requests, pages needing JS rendering execute local Playwright Chromium headless, and complex scrapers execute Firecrawl or remote browsers.
-4. **Caching** is checked before any external request, keeping responses for 24 hours to minimize external latency and credit use.
-
+1. **Official APIs** are prioritized first if the target URL matches (e.g., GitHub, Reddit, or RSS feeds).
+2. **Keyless & Fallback Search**: DuckDuckGo Search executes web & news queries with zero credentials required; automatically falls back to Brave Search if configured.
+3. **Fetch & Browser**: Fast async HTTP requests fetch static pages; dynamic or anti-bot targets (e.g., LinkedIn, Crunchbase) automatically execute local Playwright Chromium headless browsing.
+4. **Caching**: Cached responses in local database or Firestore are checked before any external request, keeping responses to minimize external latency.
 
 ---
 
@@ -162,7 +160,7 @@ are challenged before they are scored, and confidence reflects corroboration qua
 
 ## Recurring monitoring
 
-Analysiss can run on a schedule (via Inngest) so intelligence stays current instead of
+Analyses can run on a schedule (via Inngest) so intelligence stays current instead of
 being a one-off lookup. Each run **diffs against the prior run** on the same target —
 score delta, confidence delta, move change, new vs. resolved findings — so a reader sees
 *what changed*, which is the actual job of competitive intelligence.
@@ -175,20 +173,17 @@ StratOS runs in two clearly separated modes:
 
 | | **Live run** | **Deterministic demo fixture** |
 |---|---|---|
-| Trigger | Deploy a analysis with credentials configured | Read `docs/sample-briefs/` |
-| Data | Live public web via Bright Data at execution time | Hand-curated, captured on a stated date |
+| Trigger | Deploy an analysis with OpenRouter API key configured | Read `docs/sample-briefs/` |
+| Data | Live public web via keyless DDG, Playwright, & APIs | Hand-curated, captured on a stated date |
 | Timestamps | Real per-call latency + wall time | Illustrative only |
 | Freshness | Current as of the run | As stale as the fixture's `Facts as-of` date |
-| Labeling | UI shows live coverage counters during the run | Every fixture is stamped `DETERMINISTIC DEMO FIXTURE` |
+| Labeling | UI streams real-time agent events during the run | Every fixture is stamped `DETERMINISTIC DEMO FIXTURE` |
 
 The sample briefs in this repo are **deterministic demo fixtures** so a reviewer can see
 the output format without credentials. They are not, and do not claim to be, live runs.
 See [docs/sample-briefs/README.md](docs/sample-briefs/README.md).
 
-There is also a **cached path**: structured scraper results are cached in Cloud Firestore
-(24h TTL), so a repeat analysis on the same target returns the cached structured profile
-quickly instead of re-triggering a snapshot. A cached execution is not a full cold run
-and is labeled as such in the coverage panel (`0ms (cache)`).
+There is also a **cached path**: structured scraper results are cached in Cloud Firestore or local storage (`firebase_local.json`, 24h TTL), so a repeat analysis on the same target returns the cached structured profile quickly instead of re-triggering a snapshot.
 
 ---
 
@@ -199,18 +194,16 @@ and is labeled as such in the coverage panel (`0ms (cache)`).
 | 5-agent LangGraph pipeline (Planner → Researcher → Scout → Verifier → Coordinator) | Implemented |
 | Account Pulse analysis (CI wedge) | Implemented |
 | Supplier Watch / Threat Surface (expansion modules) | Implemented |
-| Keyless DuckDuckGo Search, requests/aiohttp, Scraping Browser, MCP Server | Implemented — require credentials to run live |
-| Real-time SSE agent event stream + coverage panel | Implemented |
+| Keyless DuckDuckGo Search, Playwright Browser, GitHub/Reddit/RSS APIs | Implemented — keyless search works out-of-the-box |
+| Real-time SSE agent event stream | Implemented |
 | Executive Strategic Brief (score, move, confidence, action pack, rationale) | Implemented |
 | Copy Markdown / PDF export / public share link / Slack delivery | Implemented |
-| Recurring scheduled analyses + analysis diff | Implemented |
-| Scraper API response cache (Cloud Firestore, 24h TTL) | Implemented |
+| Recurring scheduled analyses + analysis diffing | Implemented |
+| Zero-config local database fallback (`firebase_local.json`) | Implemented |
 | Deterministic demo fixtures (labeled) | Provided |
-| Cost-minimizing adaptive router | Designed — see roadmap |
 | Paying customers / active pilots / revenue | **None claimed** — see Startup Status |
 
-Statuses describe what is in the codebase. Live behavior depends on valid OpenRouter credentials and a reachable Firebase project (see
-[Environment variables](#environment-variables)).
+Statuses describe what is in the codebase. Live execution requires an OpenRouter API key (see [Environment variables](#environment-variables)).
 
 ---
 
@@ -238,97 +231,97 @@ separate startups.
 ```mermaid
 flowchart TD
     User["Browser"] --> Web
-    subgraph Web["Frontend — Next.js 16 / Vercel"]
-        Landing["Landing"]
-        Console["StratOS · SSE stream"]
-        Brief["Battle Brief · PDF · Slack · Share"]
-        Schedules["Scheduled Analysiss"]
+    subgraph Web["Frontend — Next.js 16 / React / Tailwind"]
+        Landing["Landing Page"]
+        Console["StratOS Console · SSE Stream"]
+        Brief["Executive Brief · PDF · Slack · Share"]
+        Schedules["Scheduled Analyses"]
     end
     Web -- "REST + SSE" --> API
     subgraph API["Backend — FastAPI"]
         AnalysissR["/analyses"]
         BriefsR["/briefs · /share"]
-        SchedulesR["/schedules"]
+        SchedulesR["/analyses/schedules"]
     end
     API --> Graph
-    subgraph Graph["LangGraph — 5-Agent Pipeline"]
+    subgraph Graph["LangGraph — 5-Agent Engine"]
         P["Planner"] --> R["Researcher"] --> Sk["Scout"] --> V["Verifier"] --> C["Coordinator"]
     end
-    subgraph BD["Bright Data — Web Access Layer"]
-        SERP["SERP API"]
-        MCP["MCP Server"]
-        WU["Web Unlocker"]
-        WSA["Web Scraper API"]
-        SB["Scraping Browser"]
+    subgraph ProviderLayer["Modular Intelligence Layer"]
+        DDG["DuckDuckGo / Brave Search"]
+        HTTP["AioHttp / Requests"]
+        PW["Playwright Headless Browser"]
+        APIs["GitHub / Reddit / RSS APIs"]
     end
-    R --> SERP & MCP & WU & WSA & SB
-    Claude["Claude (Sonnet)"] --> P & Sk & V & C
-    DB["Firebase · analyses · briefs · schedules · cache"] --> API
-    Inngest["Inngest"] --> API
+    R --> ProviderLayer
+    LLM["Claude / OpenRouter"] --> P & Sk & V & C
+    DB["Database · Firestore / firebase_local.json"] --> API
+    Inngest["Inngest Scheduler"] --> API
 ```
 
-Full layer decisions: [ARCHITECTURE.md](ARCHITECTURE.md).
+Full architecture details: [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
 
 ---
 
 ## Local setup
 
-**Prerequisites:** Node 18+, pnpm, Python 3.11+, uv, a Firebase project, an OpenRouter API key.
+**Prerequisites:** Node 18+, Python 3.11+, uv, an OpenRouter API key.
 
 ```powershell
 git clone https://github.com/pranav-bhagath19/StratOS-AI.git
 cd StratOS-AI
 
-# Backend
-cd api
+# 1. Backend Setup
+cd backend
 uv sync
-Copy-Item .env.example .env
-# Fill in the variables below:
-# Firebase credentials can be omitted to fall back to local JSON database (`firebase_local.json`).
-$env:PYTHONPATH="."; uv run uvicorn app.api.main:app --reload --port 8000
+# Copy .env.example if .env does not exist yet:
+Copy-Item ../.env.example .env
+# Set your OPENROUTER_API_KEY in .env
+$env:PYTHONPATH=".."
+uv run uvicorn main:app --reload --port 8000
 
-# Frontend (new terminal)
-cd web
-pnpm install
-Copy-Item .env.local.example .env.local   # set NEXT_PUBLIC_API_URL=http://localhost:8000
-pnpm dev
+# 2. Frontend Setup (in a new terminal)
+cd frontend
+npm install
+# Set NEXT_PUBLIC_API_URL=http://localhost:8000 in frontend/.env.local if needed
+npm run dev
 
-# Inngest scheduler (optional, new terminal)
+# 3. Inngest Scheduler (optional, in a new terminal)
 npx inngest-cli@latest dev -u http://localhost:8000/api/inngest
 ```
 
-Open `http://localhost:3000` → **Open StratOS** → deploy a analysis.
+Open `http://localhost:3000` → **Open StratOS** → deploy an analysis.
 
 ### Environment variables
 
-| Variable | Where to get it |
+| Variable | Description & Where to get it |
 |---|---|
-| `ANTHROPIC_API_KEY` | console.anthropic.com |
-| `OPENROUTER_API_KEY` | OpenRouter dashboard API Keys |
-| `BRAVE_API_KEY` | Brave Search API dashboard |
-| `TAVILY_API_KEY` | Tavily Search dashboard (optional) |
-| `EXA_API_KEY` | Exa AI dashboard (optional) |
-| `FIRECRAWL_API_KEY` | Firecrawl API dashboard (optional) |
-| `FIREBASE_PROJECT_ID` / `FIREBASE_PRIVATE_KEY` / `FIREBASE_CLIENT_EMAIL` | Firebase console → Service Accounts |
+| `OPENROUTER_API_KEY` | **Required.** OpenRouter dashboard API Keys (powers LLM operations) |
+| `SEARCH_PROVIDER` | `duckduckgo` (default keyless search) or `brave` |
+| `BRAVE_API_KEY` | Optional. Brave Search API dashboard (fallback search provider) |
+| `FIREBASE_PROJECT_ID` / `FIREBASE_PRIVATE_KEY` / `FIREBASE_CLIENT_EMAIL` | Optional. Firebase Console → Service Accounts. Omitting these automatically falls back to local database `firebase_local.json`. |
+| `NEXT_PUBLIC_API_URL` | Frontend env (default `http://localhost:8000`) |
 
-`api/.env` is git-ignored and must never be committed. `api/.env.example` ships with
-empty values only.
+`backend/.env` is git-ignored and must never be committed. `.env.example` ships with
+empty placeholder values only.
 
 ---
 
 ## Running tests
 
 ```powershell
-# Run all unit and integration tests
+# Run backend test suite
+cd backend
 uv run pytest
 
-# Run specific test modules
-uv run pytest tests/test_health.py -v
-uv run pytest tests/test_brief_provenance.py -v
-uv run pytest tests/test_db.py -v
-uv run pytest tests/test_providers.py -v
+# Run specific backend test modules
+uv run pytest ../tests/unit/test_providers.py -v
+uv run pytest ../tests/integration/test_brief_provenance.py -v
+uv run pytest ../tests/integration/test_db.py -v
+uv run pytest ../tests/integration/test_health.py -v
 
 # Frontend Checks
+cd ../frontend
 npm run lint
 npx tsc --noEmit
 npm run build
@@ -338,15 +331,13 @@ npm run build
 
 ## Deployment
 
-- **Frontend:** Vercel (Next.js). Set `NEXT_PUBLIC_API_URL` to the backend URL.
-- **Backend:** any container/host (Procfile + `requirements.txt` provided). Set the
-  environment variables above; CORS allows Vercel origins and localhost.
-- **Database:** Firebase Cloud Firestore (automatically falls back to local file JSON database).
-- **Scheduler:** Inngest.
+- **Frontend:** Vercel (Next.js 16). Set `NEXT_PUBLIC_API_URL` to the production backend URL.
+- **Backend:** Any container or cloud service (e.g. Render, Railway, Cloud Run). Set environment variables above.
+- **Database:** Firebase Cloud Firestore (automatically falls back to zero-config local file database `firebase_local.json`).
+- **Scheduler:** Inngest (`/api/inngest`).
 
 A deployed instance is at [stratos-ai.vercel.app](https://stratos-ai.vercel.app). Live
-analysis behavior on any deployment depends on the backend having valid credentials; a
-reviewer should confirm that before treating a run as a live capability.
+analysis behavior on any deployment depends on the backend having a valid OpenRouter key.
 
 ---
 
@@ -372,7 +363,7 @@ To be explicit about what is **not** claimed:
 We are opening a small **design-partner program** for CI, RevOps, Product Marketing,
 Strategy, and B2B-founder teams. Partners help us validate recurring usage and decision
 usefulness on real targets. What it involves, what partners receive, what is *not* yet
-guaranteed, and how data is handled: [docs/DESIGN_PARTNER_PROGRAM.md](docs/DESIGN_PARTNER_PROGRAM.md).
+guaranteed, and how data is handled: [docs/development/DESIGN_PARTNER_PROGRAM.md](docs/development/DESIGN_PARTNER_PROGRAM.md).
 
 To express interest, open a GitHub issue on this repository (the verifiable contact
 channel) — see the program doc for details.
@@ -383,11 +374,8 @@ channel) — see the program doc for details.
 
 Directional and intentionally un-inflated:
 
-- **Near term** — cost-minimizing adaptive router (choose cheapest reliable capability,
-  escalate only when it adds value); per-evidence acquisition-method + timestamp
-  persisted on every finding; a reproducible brief-regression benchmark.
-- **Next** — email delivery; custom analysis templates; per-client configuration;
-  CRM payload sync (HubSpot / Salesforce) as an opt-in export.
+- **Near term** — cost-minimizing adaptive router; per-evidence acquisition-method + timestamp persisted on every finding; a reproducible brief-regression benchmark.
+- **Next** — email delivery; custom analysis templates; per-client configuration; CRM payload sync (HubSpot / Salesforce) as an opt-in export.
 - **Later** — self-hosted option; SSO; tenant-isolated Firestore security rules.
 
 Sequencing depends on design-partner feedback, not a fixed date.
@@ -396,10 +384,7 @@ Sequencing depends on design-partner feedback, not a fixed date.
 
 ## Limitations
 
-- Live behavior requires valid OpenRouter credentials and a configured
-  Firebase project (or local JSON fallback database); without them, analyses cannot run.
-- The cost-minimizing router is designed but not yet shipped; the MVP ensures broad
-  coverage per analysis.
+- Live behavior requires a valid OpenRouter API key; without it, LLM agents cannot run.
 - Sample briefs are deterministic demo fixtures and may be stale.
 - LLM output can be wrong; the Scout/Verifier stages reduce but do not eliminate that
   risk. Briefs are decision support, not ground truth.
@@ -427,6 +412,5 @@ StratOS AI originated as a functional prototype for autonomous competitive intel
 
 MIT — see [LICENSE](LICENSE).
 
-Built by [Pranav-Bhagath
-](https://github.com/pranav-bhagath19) — based in Hyderabad, India. Contact via
-[GitHub issues](https://github.com/pranav-bhagath19/StratOS-AI/issues).
+Built by [Pranav-Bhagath](https://github.com/pranav-bhagath19) — based in Hyderabad, India. Contact via [GitHub issues](https://github.com/pranav-bhagath19/StratOS-AI/issues).
+
