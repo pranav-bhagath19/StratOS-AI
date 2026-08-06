@@ -335,11 +335,6 @@ npm run build
 - **Database:** Firebase Cloud Firestore (automatically falls back to zero-config local file database `firebase_local.json`).
 - **Scheduler:** Inngest (`/api/inngest`).
 
-A deployed instance is at [stratos-ai.vercel.app](https://stratos-ai.vercel.app). Live
-analysis behavior on any deployment depends on the backend having a valid OpenRouter key.
-
----
-
 ## Startup Status
 
 StratOS AI is a **bootstrapped, founder-led, pre-seed** product with a **working MVP**
