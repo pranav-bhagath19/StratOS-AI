@@ -328,8 +328,8 @@ export function ExecutiveBriefPanel({
 
       {/* Slack Webhook Modal */}
       {slackModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-          <Card className="border border-white/20 bg-black w-full max-w-md p-6 space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 overflow-y-auto">
+          <Card className="border border-white/20 bg-zinc-950 w-full max-w-md p-6 space-y-4 shadow-2xl rounded-2xl my-auto">
             <CardHeader className="p-0 flex flex-row items-center justify-between">
               <div>
                 <p className="font-mono text-[10px] text-zinc-500 tracking-wider uppercase mb-1">Slack Delivery</p>
@@ -348,7 +348,7 @@ export function ExecutiveBriefPanel({
                 value={slackUrl}
                 onChange={(e) => setSlackUrl(e.target.value)}
                 placeholder="https://hooks.slack.com/services/T.../B.../..."
-                className="bg-zinc-950 border-white/10 font-mono text-xs text-zinc-200"
+                className="bg-black border-white/10 font-mono text-xs text-zinc-200"
                 onKeyDown={(e) => e.key === "Enter" && handleSendSlack()}
               />
             </CardContent>
@@ -359,6 +359,156 @@ export function ExecutiveBriefPanel({
               <Button variant="primary" size="sm" onClick={handleSendSlack} disabled={!slackUrl.trim() || slackSending}>
                 {slackSending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
                 {slackSending ? "Sending…" : "Send Brief"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
+
+      {/* Diff Modal */}
+      {diffModal && diff && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 overflow-y-auto">
+          <Card className="border border-white/20 bg-zinc-950 w-full max-w-xl p-6 sm:p-8 space-y-5 shadow-2xl rounded-2xl my-auto max-h-[85vh] flex flex-col">
+            <CardHeader className="p-0 flex flex-row items-center justify-between shrink-0">
+              <div>
+                <p className="font-mono text-[10px] text-zinc-500 tracking-wider uppercase mb-1">
+                  Run Comparison
+                </p>
+                <CardTitle className="text-lg font-bold text-white">
+                  Delta Analysis vs Prior Run
+                </CardTitle>
+                {diff.prior_date && (
+                  <p className="font-mono text-xs text-zinc-400 mt-1">
+                    Compared against run on {new Date(diff.prior_date).toLocaleString()}
+                  </p>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setDiffModal(false)}
+                className="h-8 w-8 text-zinc-400 hover:text-white shrink-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+
+            <CardContent className="p-0 space-y-5 font-sans overflow-y-auto pr-2 flex-1 [scrollbar-width:thin] [scrollbar-color:#3f3f46_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-zinc-700 [&::-webkit-scrollbar-thumb]:rounded">
+              {/* Score & Move Delta Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">
+                  <span className="font-mono text-[10px] text-zinc-500 block uppercase tracking-wider">
+                    Score Delta
+                  </span>
+                  <div className="flex items-center gap-1.5 font-mono text-xl font-extrabold">
+                    {diff.score_delta !== undefined && (
+                      <span
+                        className={
+                          diff.score_delta > 0
+                            ? "text-emerald-400"
+                            : diff.score_delta < 0
+                            ? "text-red-400"
+                            : "text-zinc-400"
+                        }
+                      >
+                        {diff.score_delta > 0 ? `+${diff.score_delta}` : diff.score_delta}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">
+                  <span className="font-mono text-[10px] text-zinc-500 block uppercase tracking-wider">
+                    Confidence Delta
+                  </span>
+                  <div className="flex items-center gap-1.5 font-mono text-xl font-extrabold">
+                    {diff.confidence_delta !== undefined && (
+                      <span
+                        className={
+                          diff.confidence_delta > 0
+                            ? "text-emerald-400"
+                            : diff.confidence_delta < 0
+                            ? "text-red-400"
+                            : "text-zinc-400"
+                        }
+                      >
+                        {diff.confidence_delta > 0 ? `+${diff.confidence_delta}%` : `${diff.confidence_delta}%`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">
+                  <span className="font-mono text-[10px] text-zinc-500 block uppercase tracking-wider">
+                    Move Status
+                  </span>
+                  <div className="font-mono text-xs font-bold text-zinc-200 mt-1">
+                    {diff.move_changed ? (
+                      <span className="text-amber-400">
+                        {diff.prior_move} → {diff.current_move}
+                      </span>
+                    ) : (
+                      <span className="text-zinc-400">Unchanged ({diff.current_move})</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Prior Situation Summary */}
+              {diff.prior_summary && (
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">
+                    01 // PRIOR RUN SUMMARY
+                  </span>
+                  <div className="bg-black p-4 rounded-xl border border-white/10 text-xs text-zinc-300 leading-relaxed">
+                    {diff.prior_summary}
+                  </div>
+                </div>
+              )}
+
+              {/* New Findings */}
+              {diff.new_findings && diff.new_findings.length > 0 && (
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] text-emerald-400 font-bold uppercase tracking-widest block">
+                    02 // NEW ACTION ITEMS / FINDINGS
+                  </span>
+                  <div className="bg-emerald-950/20 p-4 rounded-xl border border-emerald-500/20 space-y-2.5">
+                    {diff.new_findings.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2.5 text-xs text-zinc-200">
+                        <span className="font-mono text-emerald-400 shrink-0 font-bold mt-0.5">+</span>
+                        <span className="leading-relaxed">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Resolved / Replaced Findings */}
+              {diff.resolved_findings && diff.resolved_findings.length > 0 && (
+                <div className="space-y-2">
+                  <span className="font-mono text-[10px] text-zinc-500 font-bold uppercase tracking-widest block">
+                    03 // RESOLVED / SUPERSEDED ITEMS
+                  </span>
+                  <div className="bg-black p-4 rounded-xl border border-white/10 space-y-2.5">
+                    {diff.resolved_findings.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2.5 text-xs text-zinc-400">
+                        <span className="font-mono text-zinc-500 shrink-0 font-bold mt-0.5">-</span>
+                        <span className="line-through leading-relaxed">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+
+            <CardFooter className="p-0 pt-3 border-t border-white/10 flex items-center justify-end shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDiffModal(false)}
+                className="font-mono text-xs text-zinc-400 hover:text-white"
+              >
+                Close
               </Button>
             </CardFooter>
           </Card>
