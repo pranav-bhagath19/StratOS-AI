@@ -271,7 +271,7 @@ export default function StratOSPage() {
       <Navbar />
 
       {/* Main View Container */}
-      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-28 sm:pt-36 pb-16">
+      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-20 sm:pt-24 pb-16">
         {/* Tab bar inside main workspace */}
         {phase === "setup" && (
           <div className="border-b border-white/10 mb-8 pb-1 flex gap-2">

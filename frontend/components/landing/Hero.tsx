@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 
 export function Hero() {
   return (
-    <section className="relative min-h-[85vh] pt-32 sm:pt-40 pb-20 px-6 flex flex-col items-center justify-center text-center overflow-hidden font-sans bg-black">
+    <section className="relative min-h-[85vh] pt-24 sm:pt-28 pb-20 px-6 flex flex-col items-center justify-center text-center overflow-hidden font-sans bg-black">
       {/* Background Subtle Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 

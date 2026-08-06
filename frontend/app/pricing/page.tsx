@@ -77,7 +77,7 @@ export default function PricingPage() {
 
       <Navbar />
 
-      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-32 sm:pt-40 pb-24">
+      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-20 sm:pt-24 pb-24">
         {/* Header */}
         <div className="text-center mb-16 space-y-4">
           <span className="font-mono text-[10px] text-zinc-400 border border-white/10 bg-zinc-950 px-3 py-1 rounded-full uppercase tracking-widest inline-block">
