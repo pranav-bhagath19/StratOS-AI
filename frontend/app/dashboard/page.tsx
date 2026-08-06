@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { type RefObject, useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -17,6 +18,7 @@ import { AgentStatusPipeline, type AgentName, type AgentState } from "@/componen
 import { ProviderShowcasePanel, type ProviderDetails } from "@/components/intelligence/SourceCard"
 import { ExecutiveBriefPanel, type Brief } from "@/components/reports/ExecutiveBrief"
 import { SchedulesPanel, type Schedule } from "@/components/dashboard/RecentReports"
+import { getStoredUser, type UserProfile } from "@/lib/auth"
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "")
 
@@ -81,6 +83,7 @@ const INITIAL_AGENTS = (): Record<AgentName, AgentState> =>
 const EMPTY_PROVIDER_DETAILS = (): ProviderDetails => ({})
 
 export default function StratOSPage() {
+  const router = useRouter()
   const [tab, setTab] = useState<Tab>("deploy")
   const [phase, setPhase] = useState<Phase>("setup")
   const [selected, setSelected] = useState<AnalysisType>("account_pulse")
@@ -94,6 +97,17 @@ export default function StratOSPage() {
   const [log, setLog] = useState<string[]>([])
   const logRef = useRef<HTMLDivElement>(null)
   const esRef = useRef<EventSource | null>(null)
+
+  const [user, setUser] = useState<UserProfile | null>(null)
+
+  useEffect(() => {
+    const u = getStoredUser()
+    if (!u) {
+      router.push("/login?redirect=/dashboard&reason=auth_required")
+    } else {
+      setUser(u)
+    }
+  }, [router])
 
   useEffect(() => {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
@@ -274,20 +288,49 @@ export default function StratOSPage() {
       <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-20 sm:pt-24 pb-16">
         {/* Tab bar inside main workspace */}
         {phase === "setup" && (
-          <div className="border-b border-white/10 mb-8 pb-1 flex gap-2">
-            {(["deploy", "schedules"] as Tab[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`font-mono text-xs font-semibold tracking-wider px-5 py-2.5 rounded-full transition-all ${
-                  tab === t
-                    ? "border border-white/20 text-white bg-zinc-900 shadow-sm"
-                    : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"
-                }`}
-              >
-                {t === "deploy" ? "DEPLOY ANALYSIS" : "SCHEDULED ANALYSES"}
-              </button>
-            ))}
+          <div className="border-b border-white/10 mb-8 pb-1 flex items-center justify-between flex-wrap gap-4">
+            <div className="flex gap-2">
+              {(["deploy", "schedules"] as Tab[]).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`font-mono text-xs font-semibold tracking-wider px-5 py-2.5 rounded-full transition-all ${
+                    tab === t
+                      ? "border border-white/20 text-white bg-zinc-900 shadow-sm"
+                      : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"
+                  }`}
+                >
+                  {t === "deploy" ? "DEPLOY ANALYSIS" : "SCHEDULED ANALYSES"}
+                </button>
+              ))}
+            </div>
+
+            {user && (
+              <div className="flex items-center gap-2.5 font-mono text-xs border border-white/15 bg-zinc-950/90 px-4 py-1.5 rounded-full shadow-md backdrop-blur-md">
+                {user.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName}
+                    referrerPolicy="no-referrer"
+                    className="h-5 w-5 rounded-full object-cover border border-white/20 shrink-0"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.src = "/avatar.png"
+                    }}
+                  />
+                ) : (
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                )}
+                <span className="text-zinc-400">
+                  ANALYST: <strong className="text-white font-bold">{user.displayName}</strong>
+                </span>
+                {user.provider === "google" && (
+                  <span className="font-mono text-[9px] text-sky-400 bg-sky-500/10 border border-sky-500/30 px-1.5 py-0.5 rounded ml-1 shrink-0">
+                    GOOGLE
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         )}
 
