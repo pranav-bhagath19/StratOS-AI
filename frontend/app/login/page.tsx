@@ -155,7 +155,7 @@ export default function LoginPage() {
       <Navbar />
 
       {/* Main Auth Container */}
-      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-24 sm:pt-28 pb-20 flex items-center justify-center">
+      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-32 sm:pt-36 pb-20 flex items-center justify-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center w-full">
           
           {/* Left Column — Telemetry Showcase & Value Props */}
