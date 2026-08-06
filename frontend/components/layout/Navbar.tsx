@@ -79,11 +79,6 @@ export function Navbar() {
                 <span className="font-mono text-xs text-white font-semibold max-w-[160px] truncate" title={user.displayName}>
                   {user.displayName}
                 </span>
-                {user.provider === "google" && (
-                  <span className="font-mono text-[9px] text-sky-400 bg-sky-500/10 border border-sky-500/30 px-1.5 py-0.2 rounded shrink-0">
-                    GOOGLE
-                  </span>
-                )}
               </div>
               <button
                 onClick={handleSignOut}

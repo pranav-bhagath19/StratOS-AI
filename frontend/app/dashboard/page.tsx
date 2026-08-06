@@ -304,33 +304,6 @@ export default function StratOSPage() {
                 </button>
               ))}
             </div>
-
-            {user && (
-              <div className="flex items-center gap-2.5 font-mono text-xs border border-white/15 bg-zinc-950/90 px-4 py-1.5 rounded-full shadow-md backdrop-blur-md">
-                {user.photoURL ? (
-                  <img
-                    src={user.photoURL}
-                    alt={user.displayName}
-                    referrerPolicy="no-referrer"
-                    className="h-5 w-5 rounded-full object-cover border border-white/20 shrink-0"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement
-                      target.src = "/avatar.png"
-                    }}
-                  />
-                ) : (
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                )}
-                <span className="text-zinc-400">
-                  ANALYST: <strong className="text-white font-bold">{user.displayName}</strong>
-                </span>
-                {user.provider === "google" && (
-                  <span className="font-mono text-[9px] text-sky-400 bg-sky-500/10 border border-sky-500/30 px-1.5 py-0.5 rounded ml-1 shrink-0">
-                    GOOGLE
-                  </span>
-                )}
-              </div>
-            )}
           </div>
         )}
 
