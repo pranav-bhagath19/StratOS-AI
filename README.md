@@ -7,7 +7,6 @@
 **StratOS AI turns live public-web signals into verified, recurring competitive
 intelligence and decisive executive action briefs.**
 
-[Live Demo](https://stratos-ai.vercel.app) · [Sample Briefs](docs/sample-briefs/) · [Design Partners](docs/development/DESIGN_PARTNER_PROGRAM.md)
 
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-black?style=flat-square)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square)
