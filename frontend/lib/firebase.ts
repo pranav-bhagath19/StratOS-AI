@@ -9,6 +9,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
 // Initialize Firebase only once
@@ -20,11 +21,19 @@ export const auth = getAuth(app)
 // Initialize analytics conditionally on the client side
 export let analytics: any = null;
 if (typeof window !== "undefined") {
-  import("firebase/analytics").then(({ getAnalytics, isSupported }) => {
-    isSupported().then((supported) => {
-      if (supported) {
-        analytics = getAnalytics(app);
-      }
+  import("firebase/analytics")
+    .then(({ getAnalytics, isSupported }) => {
+      isSupported()
+        .then((supported) => {
+          if (supported) {
+            analytics = getAnalytics(app);
+          }
+        })
+        .catch((err) => {
+          console.warn("Firebase Analytics is not supported or failed to initialize:", err);
+        });
+    })
+    .catch((err) => {
+      console.warn("Failed to load Firebase Analytics module:", err);
     });
-  });
 }

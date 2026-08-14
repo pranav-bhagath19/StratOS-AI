@@ -125,5 +125,5 @@ directional and would be refreshed by a live run.
 
 ---
 
-*Deterministic demo fixture generated for [StratOS AI](https://stratos-ai.vercel.app) ·
-Intelligence Layer · [Run this analysis live →](https://stratos-ai.vercel.app/stratos)*
+*Deterministic demo fixture generated for StratOS AI ·
+Intelligence Layer · [Run this analysis live →](/stratos)*

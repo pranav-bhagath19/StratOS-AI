@@ -99,6 +99,7 @@ The frontend will be available at **`http://localhost:3000`**. Open this URL in 
 
 StratOS AI uses **Inngest** to schedule and trigger recurring analyses. 
 
+
 To test scheduled analyses locally, run the Inngest dev server in a separate terminal:
 ```powershell
 npx inngest-cli@latest dev -u http://localhost:8000/api/inngest

@@ -28,9 +28,9 @@ _CORS_ORIGINS = [
 if _prod := os.getenv("FRONTEND_URL"):
     _CORS_ORIGINS.append(_prod.strip().rstrip("/"))
 
-# Allow any Vercel deployment (production + preview URLs) and localhost via regex.
+# Allow localhost origins via regex.
 # CORSMiddleware echoes the matched origin (never "*"), so allow_credentials works.
-_CORS_REGEX = r"^https://[a-z0-9-]+\.vercel\.app$|^http://localhost:(3000|8288)$"
+_CORS_REGEX = r"^http://localhost:(3000|8288)$"
 
 app.add_middleware(
     CORSMiddleware,

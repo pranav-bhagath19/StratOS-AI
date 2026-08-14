@@ -330,7 +330,7 @@ npm run build
 
 ## Deployment
 
-- **Frontend:** Vercel (Next.js 16). Set `NEXT_PUBLIC_API_URL` to the production backend URL.
+- **Frontend:** Next.js 16. Set `NEXT_PUBLIC_API_URL` to the production backend URL.
 - **Backend:** Any container or cloud service (e.g. Render, Railway, Cloud Run). Set environment variables above.
 - **Database:** Firebase Cloud Firestore (automatically falls back to zero-config local file database `firebase_local.json`).
 - **Scheduler:** Inngest (`/api/inngest`).

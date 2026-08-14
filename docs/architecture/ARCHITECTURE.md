@@ -6,7 +6,7 @@
 flowchart TD
     User["Browser"] --> Web
 
-    subgraph Web["Frontend — Next.js 16 / Vercel"]
+    subgraph Web["Frontend — Next.js 16"]
         Landing["Landing Page"]
         Console["StratOS Console · SSE stream"]
         Brief["Battle Brief · PDF · Share"]
@@ -74,13 +74,13 @@ flowchart TD
 
 Server components handle layout, metadata, and the public share page (`/share/[id]`). The StratOS Console is a client component that opens an `EventSource` against the FastAPI SSE endpoint. Framer Motion drives agent card status transitions (idle → running → complete) with staggered preset card entry animations. Tailwind v4 CSS-first configuration keeps the build lean — no `tailwind.config.ts` required.
 
-The frontend communicates exclusively over two channels: REST (analysis creation, brief fetch, schedule CRUD) and SSE (live agent event stream). There is no WebSocket dependency, which simplifies Railway and Vercel deployment.
+The frontend communicates exclusively over two channels: REST (analysis creation, brief fetch, schedule CRUD) and SSE (live agent event stream). There is no WebSocket dependency, which simplifies cloud deployment.
 
 ### Backend — FastAPI + uvicorn
 
 Chosen over Node.js for LangGraph's native Python API and the Bright Data Python SDK. `sse-starlette` turns any async generator into a compliant SSE stream with zero boilerplate. The SSE architecture uses an in-memory queue per analysis ID — `events.py` manages creation, subscription, and teardown. Analysis IDs map to queues; the SSE route drains the queue in real time, then cleans up when the "done" sentinel arrives.
 
-CORS is environment-aware: `localhost:3000` in development, plus a `FRONTEND_URL` env var that injects the Vercel production origin in Railway.
+CORS is environment-aware: `localhost:3000` in development, plus a `FRONTEND_URL` env var that injects the production origin in Railway.
 
 ### Agent Pipeline — LangGraph
 
