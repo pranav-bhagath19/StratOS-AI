@@ -17,6 +17,7 @@ from database.client import (
 )
 
 
+
 @pytest.fixture(autouse=True)
 def cleanup_analyses():
     created_ids: list[str] = []
