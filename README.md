@@ -406,5 +406,5 @@ StratOS AI originated as a functional prototype for autonomous competitive intel
 
 MIT — see [LICENSE](LICENSE).
 
-Built by [Pranav-Bhagath](https://github.com/pranav-bhagath19) — based in Hyderabad, India. Contact via [GitHub issues](https://github.com/pranav-bhagath19/StratOS-AI/issues).
+Built by [Pranav Sai Bhagath V](https://github.com/pranav-bhagath19) — AI/ML developer. Contact via [GitHub issues](https://github.com/pranav-bhagath19/StratOS-AI/issues).
 
