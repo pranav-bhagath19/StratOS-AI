@@ -43,10 +43,15 @@ async def get_llm_response(system_msg: str, messages: list, max_tokens: int) -> 
             )
             
             response = await llm.ainvoke(payload_messages)
-            
+            content = str(response.content) if response and response.content is not None else ""
+            if not content.strip():
+                log.warning(f"Model {model} returned an empty response. Falling back to next model.")
+                last_exception = ValueError(f"Model {model} returned empty response.")
+                continue
+
             # Log which model successfully served the call
             log.info(f"LLM call successfully served by model: {model}")
-            return response.content
+            return content
             
         except Exception as e:
             # Detect rate-limit/429 type error

@@ -1,6 +1,7 @@
 """Verifier — resolves Scout challenges and assigns a confidence score."""
 
 import json
+import logging
 
 from langchain_core.messages import HumanMessage
 from intelligence.agents.base.llm import get_llm_response
@@ -9,6 +10,8 @@ from intelligence.agents.base.json_parse import extract_json
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
 from backend.config.config import settings
+
+log = logging.getLogger(__name__)
 
 _SYSTEM = """You are the Verifier agent in StratOS AI.
 Address the Scout's challenges against the research data.
@@ -88,8 +91,15 @@ async def run_verifier(state: AnalysisState) -> dict:
         max_tokens=2048,
     )
 
-    data = extract_json(response_content)
-    verified_findings = data.get("verified_findings", findings[:2000])
+    try:
+        data = extract_json(response_content)
+        if not isinstance(data, dict):
+            data = {}
+    except Exception as exc:
+        log.warning(f"Verifier failed to extract JSON from LLM output ({exc}). Using fallback verified findings.")
+        data = {}
+
+    verified_findings = data.get("verified_findings", findings[:2000] if findings else "Research completed with available provider data.")
     confidence_score = max(0, min(100, int(data.get("confidence_score", 60))))
 
     await ev.emit(

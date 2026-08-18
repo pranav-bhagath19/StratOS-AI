@@ -1,53 +1,63 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
-import { type RefObject, useCallback, useEffect, useRef, useState } from "react"
-import Link from "next/link"
-import { toast } from "sonner"
-import { ArrowLeft, Loader2, RefreshCw, Zap } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, Suspense } from "react";
+import dynamic from "next/dynamic";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
-import { Navbar } from "@/components/layout/Navbar"
-import { Footer } from "@/components/layout/Footer"
-import { apiGet, apiPost } from "@/lib/api"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { apiGet, apiPost } from "@/lib/api";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+import { Divider } from "@/components/ui/Divider";
+import { hyperspeedPresets } from "@/components/hyperspeed/HyperSpeedPresets";
 
-import { AnalysisInput, type AnalysisType, type Preset, type AnalysisModule } from "@/components/intelligence/AnalysisInput"
-import { AgentStatusPipeline, type AgentName, type AgentState } from "@/components/intelligence/AgentStatus"
-import { ProviderShowcasePanel, type ProviderDetails } from "@/components/intelligence/SourceCard"
-import { ExecutiveBriefPanel, type Brief } from "@/components/reports/ExecutiveBrief"
-import { SchedulesPanel, type Schedule } from "@/components/dashboard/RecentReports"
-import { getStoredUser, type UserProfile } from "@/lib/auth"
+import {
+  AnalysisInput,
+  type AnalysisType,
+  type Preset,
+  type AnalysisModule,
+} from "@/components/intelligence/AnalysisInput";
+import { AgentFlow } from "@/components/intelligence/AgentFlow";
+import { AnalysisStatus } from "@/components/intelligence/AnalysisStatus";
+import { ExecutiveBriefPanel, type Brief } from "@/components/reports/ExecutiveBrief";
+import { SchedulesPanel, type Schedule } from "@/components/dashboard/RecentReports";
+import { getStoredUser, type UserProfile } from "@/lib/auth";
+import { AgentName, AgentState, AGENTS } from "@/components/intelligence/AgentStatus";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "")
+const Hyperspeed = dynamic(() => import("@/components/hyperspeed/Hyperspeed"), {
+  ssr: false,
+});
 
-type Phase = "setup" | "running" | "complete" | "failed"
-type Tab = "deploy" | "schedules"
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
+
+type Phase = "setup" | "running" | "complete" | "failed";
+type Tab = "deploy" | "schedules";
 
 const PRESETS: Preset[] = [
   {
     track: "WEDGE · COMPETITIVE INTEL",
-    title: "Anthropic",
+    title: "NVIDIA",
     analysis: "account_pulse",
-    target: "anthropic.com",
-    tagline: "Fast-moving enterprise-AI competitor — track the threat.",
+    target: "nvidia.com",
+    tagline: "Track competitor architecture announcements & product rollouts.",
   },
   {
     track: "EXPANSION · SUPPLY CHAIN",
     title: "Boeing",
     analysis: "supplier_watch",
     target: "boeing.com",
-    tagline: "Aerospace supplier under regulatory pressure — de-risk?",
+    tagline: "Aerospace supplier under regulatory pressure — de-risk exposure.",
   },
   {
     track: "EXPANSION · SECURITY",
     title: "Change Healthcare",
     analysis: "threat_surface",
     target: "change.unitedhealthgroup.com",
-    tagline: "Major healthcare cyber incident — what's the exposure?",
+    tagline: "Major healthcare cyber incident — monitor threat surface.",
   },
-]
+];
 
 const ANALYSISS: AnalysisModule[] = [
   {
@@ -71,348 +81,337 @@ const ANALYSISS: AnalysisModule[] = [
     description: "Breach history, CVEs, dark web exposure, domain reputation",
     tools: ["SERP API", "Web Unlocker", "MCP Server"],
   },
-]
-
-const AGENTS = ["planner", "researcher", "scout", "verifier", "coordinator"] as const
+];
 
 const INITIAL_AGENTS = (): Record<AgentName, AgentState> =>
   Object.fromEntries(
     AGENTS.map((a) => [a, { status: "idle", message: "" }])
-  ) as Record<AgentName, AgentState>
+  ) as Record<AgentName, AgentState>;
 
-const EMPTY_PROVIDER_DETAILS = (): ProviderDetails => ({})
+function DashboardContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTarget = searchParams.get("target") || "";
 
-export default function StratOSPage() {
-  const router = useRouter()
-  const [tab, setTab] = useState<Tab>("deploy")
-  const [phase, setPhase] = useState<Phase>("setup")
-  const [selected, setSelected] = useState<AnalysisType>("account_pulse")
-  const [target, setTarget] = useState("")
-  const [analysisId, setAnalysisId] = useState<string | null>(null)
-  const [schedules, setSchedules] = useState<Schedule[]>([])
-  const [isDeploying, setIsDeploying] = useState(false)
-  const [agents, setAgents] = useState<Record<AgentName, AgentState>>(INITIAL_AGENTS)
-  const [providerDetails, setProviderDetails] = useState<ProviderDetails>(EMPTY_PROVIDER_DETAILS)
-  const [brief, setBrief] = useState<Brief | null>(null)
-  const [log, setLog] = useState<string[]>([])
-  const logRef = useRef<HTMLDivElement>(null)
-  const esRef = useRef<EventSource | null>(null)
-
-  const [user, setUser] = useState<UserProfile | null>(null)
+  const [tab, setTab] = useState<Tab>("deploy");
+  const [phase, setPhase] = useState<Phase>("setup");
+  const [selected, setSelected] = useState<AnalysisType>("account_pulse");
+  const [target, setTarget] = useState(initialTarget);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [agents, setAgents] = useState<Record<AgentName, AgentState>>(INITIAL_AGENTS);
+  const [brief, setBrief] = useState<Brief | null>(null);
+  const [log, setLog] = useState<string[]>([]);
+  const logRef = useRef<HTMLDivElement>(null);
+  const esRef = useRef<EventSource | null>(null);
+  const [, setUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    const u = getStoredUser()
+    const u = getStoredUser();
     if (!u) {
-      router.push("/login?redirect=/dashboard&reason=auth_required")
+      router.push("/login?redirect=/dashboard&reason=auth_required");
     } else {
-      setUser(u)
+      setUser(u);
     }
-  }, [router])
+  }, [router]);
 
   useEffect(() => {
-    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
-  }, [log])
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [log]);
 
   const loadSchedules = useCallback(async () => {
     try {
-      const data = await apiGet<Schedule[]>("/analyses/schedules")
-      setSchedules(data)
+      const data = await apiGet<Schedule[]>("/analyses/schedules");
+      setSchedules(data);
     } catch {
-      // schedules table may not exist yet — show empty state
+      // schedules fallback
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    if (tab !== "schedules") return
-    let cancelled = false
-    ;(async () => {
+    if (tab !== "schedules") return;
+    let cancelled = false;
+    (async () => {
       try {
-        const data = await apiGet<Schedule[]>("/analyses/schedules")
-        if (!cancelled) setSchedules(data)
+        const data = await apiGet<Schedule[]>("/analyses/schedules");
+        if (!cancelled) setSchedules(data);
       } catch {
-        // schedules table may not exist yet — show empty state
+        // empty fallback
       }
-    })()
-    return () => { cancelled = true }
-  }, [tab])
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tab]);
 
   const pushLog = useCallback((line: string) => {
-    setLog((prev) => [...prev.slice(-100), line])
-  }, [])
+    setLog((prev) => [...prev.slice(-100), line]);
+  }, []);
 
   const deployAnalysis = async (analysisTarget: string, analysisType: AnalysisType) => {
-    if (isDeploying) return
+    if (isDeploying) return;
 
-    setIsDeploying(true)
+    setIsDeploying(true);
+    esRef.current?.close();
+    esRef.current = null;
 
-    esRef.current?.close()
-    esRef.current = null
-
-    setLog([])
-    setProviderDetails(EMPTY_PROVIDER_DETAILS())
-    setAgents(INITIAL_AGENTS())
-    setBrief(null)
-    setAnalysisId(null)
+    setLog([]);
+    setAgents(INITIAL_AGENTS());
+    setBrief(null);
+    setAnalysisId(null);
 
     try {
       const res = await apiPost<{ analysis_id: string }>("/analyses/", {
         analysis_type: analysisType,
         target: analysisTarget,
         context: null,
-      })
-      setAnalysisId(res.analysis_id)
-      setPhase("running")
-      pushLog(`DEPLOYED  analysis=${res.analysis_id.slice(0, 8)}`)
-      startSSE(res.analysis_id)
+      });
+      setAnalysisId(res.analysis_id);
+      setPhase("running");
+      pushLog(`DEPLOYED analysis=${res.analysis_id.slice(0, 8)}`);
+      startSSE(res.analysis_id);
     } catch (err) {
-      setIsDeploying(false)
+      setIsDeploying(false);
       toast.error("Deploy failed", {
         description: err instanceof Error ? err.message : String(err),
-      })
+      });
     }
-  }
+  };
 
   const handleDeploy = async () => {
     if (!target.trim()) {
-      toast.error("Target required", { description: "Enter a company name or domain." })
-      return
+      toast.error("Target required", { description: "Enter a company name or domain." });
+      return;
     }
-    await deployAnalysis(target.trim(), selected)
-  }
+    await deployAnalysis(target.trim(), selected);
+  };
 
   const handlePresetDeploy = async (presetTarget: string, analysisType: AnalysisType) => {
-    setSelected(analysisType)
-    setTarget(presetTarget)
-    await deployAnalysis(presetTarget, analysisType)
-  }
+    setSelected(analysisType);
+    setTarget(presetTarget);
+    await deployAnalysis(presetTarget, analysisType);
+  };
 
   const startSSE = (id: string) => {
-    const es = new EventSource(`${API_BASE}/analyses/${id}/stream`)
-    esRef.current = es
+    const es = new EventSource(`${API_BASE}/analyses/${id}/stream`);
+    esRef.current = es;
 
     es.addEventListener("intelligence_event", (e: MessageEvent) => {
       try {
         const d = JSON.parse(e.data as string) as {
-          agent: string
-          event_type: string
-          message: string
-          provider_product: string | null
-          payload?: Record<string, unknown>
-        }
-        const { agent, event_type, message, provider_product, payload } = d
+          agent: string;
+          event_type: string;
+          message: string;
+        };
+        const { agent, event_type, message } = d;
 
         setAgents((prev) => {
-          const next = { ...prev }
-          const a = agent as AgentName
-          if (!AGENTS.includes(a)) return prev
+          const next = { ...prev };
+          const a = agent as AgentName;
+          if (!AGENTS.includes(a)) return prev;
           if (["started", "thinking", "tool_call", "tool_result"].includes(event_type)) {
-            next[a] = { status: "running", message }
+            next[a] = { status: "running", message };
           } else if (event_type === "completed") {
-            next[a] = { status: "complete", message }
+            next[a] = { status: "complete", message };
           } else if (event_type === "failed") {
-            next[a] = { status: "failed", message }
+            next[a] = { status: "failed", message };
           }
-          return next
-        })
+          return next;
+        });
 
-        if (provider_product) {
-          if (event_type === "tool_call") {
-            const goal = message.replace(/^Step \d+:\s*/, "")
-            setProviderDetails((prev) => {
-              const ex = prev[provider_product] ?? { count: 0, totalLatencyMs: 0, lastGoal: "", lastStatus: "" }
-              return { ...prev, [provider_product]: { ...ex, count: ex.count + 1, lastGoal: goal } }
-            })
-          } else if (event_type === "tool_result") {
-            const latency = typeof payload?.latency_ms === "number" ? payload.latency_ms : 0
-            const status = typeof payload?.status === "string" ? payload.status : ""
-            setProviderDetails((prev) => {
-              const ex = prev[provider_product] ?? { count: 0, totalLatencyMs: 0, lastGoal: "", lastStatus: "" }
-              return {
-                ...prev,
-                [provider_product]: { ...ex, totalLatencyMs: ex.totalLatencyMs + latency, lastStatus: status },
-              }
-            })
-          }
-        }
-
-        const tag = agent.toUpperCase().padEnd(10)
-        pushLog(`${tag}  ${event_type.padEnd(12)}  ${message}`)
+        const tag = agent.toUpperCase().padEnd(10);
+        pushLog(`${tag}  ${event_type.padEnd(12)}  ${message}`);
       } catch {
         // ignore malformed events
       }
-    })
+    });
 
     es.addEventListener("done", async () => {
-      es.close()
-      esRef.current = null
-      pushLog("─────────────  ANALYSIS COMPLETE  ─────────────")
+      es.close();
+      esRef.current = null;
+      pushLog("─────────────  ANALYSIS COMPLETE  ─────────────");
       try {
-        const r = await fetch(`${API_BASE}/analyses/${id}`)
-        const data = (await r.json()) as { analysis: unknown; brief: Brief | null }
-        if (data.brief) setBrief(data.brief)
+        const r = await fetch(`${API_BASE}/analyses/${id}`);
+        const data = (await r.json()) as { brief: Brief | null };
+        if (data.brief) setBrief(data.brief);
       } catch {
         // best-effort
       }
-      setIsDeploying(false)
-      setPhase("complete")
-    })
+      setIsDeploying(false);
+      setPhase("complete");
+    });
 
     es.onerror = () => {
-      pushLog("SSE ERROR: connection dropped")
-      setIsDeploying(false)
-      setPhase("failed")
-    }
-  }
+      pushLog("SSE ERROR: connection dropped");
+      setIsDeploying(false);
+      setPhase("failed");
+    };
+  };
 
   const handleReset = () => {
-    esRef.current?.close()
-    esRef.current = null
-    setIsDeploying(false)
-    setPhase("setup")
-    setAnalysisId(null)
-    setBrief(null)
-    setLog([])
-    setProviderDetails(EMPTY_PROVIDER_DETAILS())
-    setAgents(INITIAL_AGENTS())
-  }
+    esRef.current?.close();
+    esRef.current = null;
+    setIsDeploying(false);
+    setPhase("setup");
+    setAnalysisId(null);
+    setBrief(null);
+    setLog([]);
+    setAgents(INITIAL_AGENTS());
+  };
 
   return (
-    <div className="relative min-h-screen bg-black text-white flex flex-col font-sans overflow-hidden">
-      {/* Background Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+    <main className="flex-1 max-w-6xl w-full mx-auto px-6 pt-28 pb-16 font-sans">
+      {phase === "setup" && (
+        <div className="space-y-8 font-sans">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+            <div className="space-y-2">
+              <SectionLabel>STRATOS AI COMMAND CONSOLE</SectionLabel>
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                Target Intelligence Workspace
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-400 max-w-xl leading-relaxed">
+                Deploy autonomous multi-agent research scans across target accounts, supply chain nodes, and security surfaces.
+              </p>
+            </div>
 
-      {/* Navigation */}
-      <Navbar />
-
-      {/* Main View Container */}
-      <main className="relative z-10 flex-1 max-w-6xl w-full mx-auto px-6 pt-28 sm:pt-32 pb-16">
-        {/* Tab bar inside main workspace */}
-        {phase === "setup" && (
-          <div className="border-b border-white/10 mb-8 pb-1 flex items-center justify-between flex-wrap gap-4">
-            <div className="flex gap-2">
-              {(["deploy", "schedules"] as Tab[]).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTab(t)}
-                  className={`font-mono text-xs font-semibold tracking-wider px-5 py-2.5 rounded-full transition-all ${
-                    tab === t
-                      ? "border border-white/20 text-white bg-zinc-900 shadow-sm"
-                      : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-950"
-                  }`}
-                >
-                  {t === "deploy" ? "DEPLOY ANALYSIS" : "SCHEDULED ANALYSES"}
-                </button>
-              ))}
+            {/* Navigation Tabs */}
+            <div className="inline-flex p-1 bg-zinc-950 border border-white/10 rounded-xl text-xs font-semibold shrink-0">
+              <button
+                type="button"
+                onClick={() => setTab("deploy")}
+                className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
+                  tab === "deploy"
+                    ? "bg-white text-black font-bold shadow-md"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Deploy Scan
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab("schedules")}
+                className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
+                  tab === "schedules"
+                    ? "bg-white text-black font-bold shadow-md"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Scheduled Reports
+              </button>
             </div>
           </div>
-        )}
 
-        {phase !== "setup" ? (
-          <div className="space-y-6 font-sans">
-            {/* Header */}
-            <div className="flex items-center justify-between flex-wrap gap-4 bg-zinc-950 p-5 rounded-xl border border-white/10">
-              <div>
-                <span className="font-mono text-xs text-zinc-400 font-semibold tracking-wider">
-                  {ANALYSISS.find((m) => m.type === selected)?.track} · {selected.toUpperCase().replace("_", " ")}
-                </span>
-                <h1 className="text-3xl font-extrabold tracking-tight text-white mt-0.5">{target}</h1>
+          {tab === "deploy" ? (
+            <AnalysisInput
+              selected={selected}
+              onSelect={setSelected}
+              target={target}
+              onTargetChange={setTarget}
+              onDeploy={handleDeploy}
+              onPresetDeploy={handlePresetDeploy}
+              isDeploying={isDeploying}
+              presets={PRESETS}
+              modules={ANALYSISS}
+            />
+          ) : (
+            <SchedulesPanel
+              schedules={schedules}
+              onRefresh={loadSchedules}
+              onRunNow={handlePresetDeploy}
+            />
+          )}
+        </div>
+      )}
+
+      {phase !== "setup" && (
+        <div className="space-y-8 font-sans">
+          {/* Status Header */}
+          <AnalysisStatus
+            target={target || "NVIDIA"}
+            status={
+              phase === "running"
+                ? "RESEARCHING"
+                : phase === "complete"
+                ? "COMPLETE"
+                : "FAILED"
+            }
+            moduleName={ANALYSISS.find((m) => m.type === selected)?.name}
+            onReset={handleReset}
+          />
+
+          {/* Running Initialization Accent */}
+          {phase === "running" && (
+            <div className="relative border border-white/15 bg-black p-8 rounded-2xl overflow-hidden text-center space-y-4">
+              <div className="absolute inset-0 opacity-25 pointer-events-none">
+                <Hyperspeed effectOptions={hyperspeedPresets.six} />
               </div>
-              <div className="flex items-center gap-3">
-                <Badge
-                  variant="outline"
-                  className={`font-mono text-xs tracking-wider px-3 py-1.5 ${
-                    phase === "running"
-                      ? "border-amber-500/50 text-amber-400 bg-amber-500/10"
-                      : phase === "complete"
-                      ? "border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
-                      : "border-red-500/50 text-red-400 bg-red-500/10"
-                  }`}
-                >
-                  {phase === "running" ? (
-                    <span className="flex items-center gap-1.5">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      PIPELINE RUNNING
-                    </span>
-                  ) : phase === "complete" ? (
-                    "✓ ANALYSIS COMPLETE"
-                  ) : (
-                    "✗ PIPELINE FAILED"
-                  )}
-                </Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReset}
-                  className="font-mono text-xs text-zinc-300 border-white/10 hover:bg-zinc-900 h-9"
-                >
-                  <RefreshCw className="h-3.5 w-3.5 mr-1" />
-                  New Analysis
-                </Button>
-              </div>
-            </div>
-
-            {/* Agent Pipeline */}
-            <AgentStatusPipeline agents={agents} />
-
-            {/* Capability Showcase */}
-            <ProviderShowcasePanel providerDetails={providerDetails} phase={phase} />
-
-            {/* Live SSE Event Stream Feed */}
-            <Card className="border border-white/10 bg-zinc-950">
-              <CardHeader className="border-b border-white/10 px-6 py-3 flex flex-row items-center justify-between">
-                <span className="font-mono text-xs font-semibold text-zinc-300 tracking-wider flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-amber-400" />
-                  LIVE SSE EVENT FEED
-                </span>
-                {phase === "running" && (
-                  <Loader2 className="h-3.5 w-3.5 text-amber-400 animate-spin" />
-                )}
-              </CardHeader>
-              <CardContent className="p-0">
-                <div
-                  ref={logRef}
-                  className="overflow-y-auto p-4 font-mono text-xs text-zinc-400 space-y-1 max-h-56 bg-black rounded-b-xl"
-                >
-                  {log.length === 0 ? (
-                    <span className="text-zinc-600 italic">Waiting for incoming agent telemetry events…</span>
-                  ) : (
-                    log.map((line, i) => (
-                      <div key={i} className="leading-relaxed whitespace-pre-wrap break-all border-b border-zinc-900 pb-0.5">
-                        {line}
-                      </div>
-                    ))
-                  )}
+              <div className="relative z-10 space-y-2 font-sans">
+                <div className="inline-flex items-center gap-2 text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/30 px-3.5 py-1.5 rounded-full">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>5-AGENT PIPELINE RUNNING LIVE TELEMETRY</span>
                 </div>
-              </CardContent>
-            </Card>
+                <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
+                  Parsing live domain signals, executing Playwright web scrapers, and cross-verifying evidence.
+                </p>
+              </div>
+            </div>
+          )}
 
-            {/* Executive Brief Display */}
-            {phase === "complete" && brief && (
-              <ExecutiveBriefPanel brief={brief} analysisId={analysisId} target={target} />
-            )}
+          {/* Agent Pipeline Flow */}
+          <div className="space-y-2">
+            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest block">
+              AGENT EXECUTION PIPELINE
+            </span>
+            <AgentFlow agents={agents} />
           </div>
-        ) : tab === "deploy" ? (
-          <AnalysisInput
-            selected={selected}
-            onSelect={setSelected}
-            target={target}
-            onTargetChange={setTarget}
-            onDeploy={handleDeploy}
-            onPresetDeploy={handlePresetDeploy}
-            isDeploying={isDeploying}
-            presets={PRESETS}
-            modules={ANALYSISS}
-          />
-        ) : (
-          <SchedulesPanel
-            schedules={schedules}
-            onRefresh={loadSchedules}
-            onRunNow={handlePresetDeploy}
-          />
-        )}
-      </main>
 
+          <Divider />
+
+          {/* Live Telemetry Stream */}
+          <div className="space-y-2">
+            <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest block">
+              TELEMETRY EVENT STREAM LOG
+            </span>
+            <div
+              ref={logRef}
+              className="overflow-y-auto p-4 font-mono text-xs text-zinc-400 space-y-1 max-h-56 bg-black border border-white/10 rounded-xl"
+            >
+              {log.length === 0 ? (
+                <span className="text-zinc-600 italic">Connecting to agent telemetry feed…</span>
+              ) : (
+                log.map((line, i) => (
+                  <div key={i} className="leading-relaxed border-b border-zinc-900 pb-0.5">
+                    {line}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Executive Brief Output Report */}
+          {phase === "complete" && brief && (
+            <ExecutiveBriefPanel brief={brief} analysisId={analysisId} target={target} />
+          )}
+        </div>
+      )}
+    </main>
+  );
+}
+
+export default function StratOSPage() {
+  return (
+    <div className="min-h-screen bg-black text-white flex flex-col font-sans selection:bg-white selection:text-black">
+      <Navbar />
+      <Suspense fallback={
+        <div className="min-h-[60vh] flex items-center justify-center text-zinc-500 text-xs font-sans">
+          Loading workspace...
+        </div>
+      }>
+        <DashboardContent />
+      </Suspense>
       <Footer />
     </div>
-  )
+  );
 }

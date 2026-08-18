@@ -1,143 +1,153 @@
-"use client"
+"use client";
 
-import React from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { ArrowRight, Activity, ChevronRight, CheckCircle2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import React from "react";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { ArrowRight, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+
+// Dynamic import for Lightspeed canvas background component
+const Lightspeed = dynamic(() => import("@/components/lightspeed/Lightspeed"), {
+  ssr: false,
+});
 
 export function Hero() {
   return (
-    <section className="relative min-h-[85vh] pt-24 sm:pt-28 pb-20 px-6 flex flex-col items-center justify-center text-center overflow-hidden font-sans bg-black">
-      {/* Background Subtle Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
-
-      {/* Agent Status Badge */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="inline-block mb-6 relative z-10"
-      >
-        <div className="font-mono text-[11px] text-zinc-300 border border-white/10 bg-zinc-950 px-4 py-1.5 rounded-full tracking-wider inline-flex items-center gap-2 shadow-sm">
-          <Activity className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
-          5 AUTONOMOUS AGENTS STANDING BY
+    <section className="relative min-h-[85vh] pt-32 pb-16 px-6 flex flex-col items-center justify-center text-center font-sans overflow-hidden bg-black">
+      {/* Interactive Hyperspeed & Ambient Video Background Layer */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Lightspeed Radial Warp Particles Canvas */}
+        <div className="absolute inset-0 opacity-40">
+          <Lightspeed
+            width="100%"
+            height="100%"
+            speed={1.1}
+            streakCount={380}
+            stretchFactor={0.07}
+            primaryColor="#489dff"
+            secondaryColor="#d2d2d2"
+            tertiaryColor="#4a48f0"
+            intensity={1.3}
+            interactionEnabled={true}
+            fadePower={1.8}
+            opacity={0.85}
+          />
         </div>
-      </motion.div>
 
-      {/* Main Display Headline — SOLID WHITE, NO GRADIENT TEXT */}
-      <motion.h1
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="relative z-10 text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08] mb-6 max-w-4xl"
-      >
-        Strategic Intelligence. <br className="hidden sm:block" />
-        Powered by Autonomous AI.
-      </motion.h1>
+        {/* Video Overlay Layer */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+        >
+          <source
+            src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-network-lines-loop-31804-large.mp4"
+            type="video/mp4"
+          />
+        </video>
+
+        {/* Dark Vignette Overlay — Ensures Text Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/50 to-black pointer-events-none" />
+      </div>
+
+      {/* Section Indicator Badge */}
+      <div className="mb-5 relative z-10">
+        <SectionLabel>COMPETITOR TELEMETRY & MARKET SIGNALS</SectionLabel>
+      </div>
+
+      {/* Main Display Headline */}
+      <h1 className="relative z-10 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.08] mb-5 max-w-3xl">
+        Autonomous Competitive Intelligence for Executive Teams.
+      </h1>
 
       {/* Supporting Subhead */}
-      <motion.p
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="relative z-10 text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed font-normal"
-      >
-        Research competitors, track market signals, verify intelligence, and turn real-time public information into actionable strategy.
-      </motion.p>
+      <p className="relative z-10 text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto mb-8 leading-relaxed font-normal">
+        Track target accounts, monitor web signals, and generate verified strategic recommendations directly from live public web data.
+      </p>
 
-      {/* Action CTAs — Reference Image 2 Button System */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="relative z-10 flex flex-wrap justify-center items-center gap-4 mb-16"
-      >
-        <Button asChild variant="primary" size="lg">
+      {/* Action CTAs */}
+      <div className="relative z-10 flex flex-wrap justify-center items-center gap-4">
+        <Button asChild variant="primary" size="lg" className="font-sans font-bold text-xs uppercase tracking-wider">
           <Link href="/dashboard" className="flex items-center gap-2">
             Start Analysis
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>
 
-        <Button asChild variant="secondary" size="lg">
+        <Button asChild variant="secondary" size="lg" className="font-sans font-semibold text-xs uppercase tracking-wider">
           <Link href="#platform" className="flex items-center gap-2">
-            Explore Platform
+            Explore Architecture
             <ChevronRight className="h-4 w-4 text-zinc-500" />
           </Link>
         </Button>
-      </motion.div>
+      </div>
 
-      {/* Real Product Visual Preview Composition */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.4 }}
-        className="relative z-10 w-full max-w-5xl mx-auto rounded-2xl border border-white/10 bg-zinc-950 p-4 sm:p-6 shadow-2xl overflow-hidden"
-      >
-        {/* Header Bar */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-5 px-2">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-zinc-800" />
-            <span className="w-3 h-3 rounded-full bg-zinc-800" />
-            <span className="w-3 h-3 rounded-full bg-zinc-800" />
-            <span className="font-mono text-xs text-zinc-500 ml-2">stratos-console // target: anthropic.com</span>
-          </div>
-          <span className="font-mono text-[10px] text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 rounded">
-            ✓ COMPLETED · CONFIDENCE 92/100
+      {/* Modern Connected Horizontal Pipeline Strip */}
+      <div className="relative z-10 mt-12 w-full max-w-4xl mx-auto border-t border-white/10 pt-6 font-sans">
+        <div className="flex items-center justify-between text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-4 px-2">
+          <span>PARALLEL 5-AGENT TELEMETRY PIPELINE</span>
+          <span className="text-blue-400 flex items-center gap-1.5 font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+            OPERATIONAL
           </span>
         </div>
 
-        {/* Preview Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left font-sans">
-          <div className="border border-white/10 bg-black p-5 rounded-xl space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] text-zinc-500 tracking-wider">RECOMMENDED MOVE</span>
-              <span className="bg-red-500/10 border border-red-500/40 text-red-400 font-mono text-xs font-bold px-2 py-0.5 rounded">
-                ATTACK
-              </span>
+        {/* Connected Linear Step Flow */}
+        <div className="flex flex-wrap items-center justify-between gap-y-4 gap-x-2 text-xs text-left bg-zinc-950/90 border border-white/10 px-5 py-3.5 rounded-2xl backdrop-blur-md">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-zinc-500 font-mono font-bold">01</span>
+              <span className="font-extrabold text-white tracking-wider">PLANNER</span>
             </div>
-            <div className="space-y-1">
-              <span className="font-mono text-xs text-zinc-300 font-bold">Market Score: 85/100</span>
-              <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                Enterprise AI competitor introduced specialized Claude 3.5 Sonnet tier. Immediate displacement positioning recommended.
-              </p>
-            </div>
+            <span className="text-[10px] text-zinc-400 block pl-5">Deconstruct Goals</span>
           </div>
 
-          <div className="border border-white/10 bg-black p-5 rounded-xl space-y-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-mono text-[10px] text-zinc-500 tracking-wider">5-AGENT TELEMETRY</span>
-              <span className="font-mono text-[9px] text-zinc-400">LANGGRAPH</span>
+          <span className="hidden sm:inline-block text-zinc-600 font-mono">→</span>
+
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-zinc-500 font-mono font-bold">02</span>
+              <span className="font-extrabold text-white tracking-wider">RESEARCHER</span>
             </div>
-            <div className="space-y-2 font-mono text-xs">
-              <div className="flex items-center justify-between text-emerald-400"><span className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3" /> PLANNER</span><span className="text-[10px] text-zinc-500">2 tool steps</span></div>
-              <div className="flex items-center justify-between text-emerald-400"><span className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3" /> RESEARCHER</span><span className="text-[10px] text-zinc-500">3 parallel calls</span></div>
-              <div className="flex items-center justify-between text-emerald-400"><span className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3" /> SCOUT</span><span className="text-[10px] text-zinc-500">SERP & Browser</span></div>
-              <div className="flex items-center justify-between text-emerald-400"><span className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3" /> VERIFIER</span><span className="text-[10px] text-zinc-500">Cross-checked</span></div>
-              <div className="flex items-center justify-between text-emerald-400"><span className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3" /> COORDINATOR</span><span className="text-[10px] text-zinc-500">Brief ready</span></div>
-            </div>
+            <span className="text-[10px] text-zinc-400 block pl-5">Parallel Queries</span>
           </div>
 
-          <div className="border border-white/10 bg-black p-5 rounded-xl space-y-3">
-            <span className="font-mono text-[10px] text-zinc-500 tracking-wider block">ACTION PACK</span>
-            <ul className="space-y-2 text-xs text-zinc-300 font-sans">
-              <li className="flex items-start gap-2">
-                <span className="font-mono text-red-400 font-bold">→</span>
-                <span>Deploy targeted enterprise pricing deck</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-mono text-amber-400 font-bold">→</span>
-                <span>Alert GTM team on security compliance gap</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-mono text-sky-400 font-bold">→</span>
-                <span>Track developer portal updates weekly</span>
-              </li>
-            </ul>
+          <span className="hidden sm:inline-block text-zinc-600 font-mono">→</span>
+
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-zinc-500 font-mono font-bold">03</span>
+              <span className="font-extrabold text-white tracking-wider">SCOUT</span>
+            </div>
+            <span className="text-[10px] text-zinc-400 block pl-5">Live Scraper</span>
+          </div>
+
+          <span className="hidden sm:inline-block text-zinc-600 font-mono">→</span>
+
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-zinc-500 font-mono font-bold">04</span>
+              <span className="font-extrabold text-white tracking-wider">VERIFIER</span>
+            </div>
+            <span className="text-[10px] text-zinc-400 block pl-5">Evidence Scoring</span>
+          </div>
+
+          <span className="hidden sm:inline-block text-zinc-600 font-mono">→</span>
+
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-zinc-500 font-mono font-bold">05</span>
+              <span className="font-extrabold text-white tracking-wider">COORDINATOR</span>
+            </div>
+            <span className="text-[10px] text-zinc-400 block pl-5">Executive Briefs</span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
-  )
+  );
 }
+
+export default Hero;

@@ -1,6 +1,7 @@
 """Scout — challenges research findings and surfaces verification gaps."""
 
 import json
+import logging
 
 from langchain_core.messages import HumanMessage
 from intelligence.agents.base.llm import get_llm_response
@@ -9,6 +10,8 @@ from intelligence.agents.base.json_parse import extract_json
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
 from backend.config.config import settings
+
+log = logging.getLogger(__name__)
 
 _SYSTEM = """You are the Scout agent in StratOS AI.
 Critically review the research findings and raise 3-5 pointed challenges.
@@ -38,7 +41,18 @@ async def run_scout(state: AnalysisState) -> dict:
         max_tokens=1024,
     )
 
-    challenges: list[str] = extract_json(response_content)
+    try:
+        raw_challenges = extract_json(response_content)
+        if isinstance(raw_challenges, list):
+            challenges = [str(c) for c in raw_challenges]
+        else:
+            challenges = [str(raw_challenges)] if raw_challenges else []
+    except Exception as exc:
+        log.warning(f"Scout failed to extract JSON from LLM response ({exc}). Using fallback challenges.")
+        challenges = [
+            "Verify data recency and completeness across research provider steps.",
+            "Cross-reference key statements against secondary independent sources.",
+        ]
 
     await ev.emit(
         analysis_id, "scout", "completed",

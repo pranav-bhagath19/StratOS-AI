@@ -1,6 +1,7 @@
 """Coordinator — synthesizes the Executive Strategic Brief from verified intelligence."""
 
 import json
+import logging
 
 from langchain_core.messages import HumanMessage
 from intelligence.agents.base.llm import get_llm_response
@@ -9,6 +10,8 @@ from intelligence.agents.base.json_parse import extract_json
 from intelligence.agents.base import events as ev
 from intelligence.agents.base.state import AgentEvent, AnalysisState
 from backend.config.config import settings
+
+log = logging.getLogger(__name__)
 
 _SYSTEM = """You are Coordinator — the synthesis and decision agent in StratOS AI.
 Produce the Executive Strategic Brief from verified intelligence.
@@ -88,16 +91,23 @@ async def run_coordinator(state: AnalysisState) -> dict:
         max_tokens=2048,
     )
 
-    data = extract_json(response_content)
+    try:
+        data = extract_json(response_content)
+        if not isinstance(data, dict):
+            data = {}
+    except Exception as exc:
+        log.warning(f"Coordinator failed to extract JSON from LLM output ({exc}). Using fallback brief.")
+        data = {}
+
     market_move_score = max(0, min(100, int(data.get("market_move_score", 50))))
     recommended_move = data.get("recommended_move", "MONITOR")
-    executive_summary = f"{data.get('headline', '')} {data.get('situation', '')}".strip()
+    executive_summary = f"{data.get('headline', '')} {data.get('situation', '')}".strip() or f"Executive Strategic Brief for {target}"
     action_pack = {
-        "headline": data.get("headline", ""),
-        "situation": data.get("situation", ""),
+        "headline": data.get("headline", f"Executive Strategic Brief: {target}"),
+        "situation": data.get("situation", "Synthesized intelligence based on available research results."),
         "key_findings": data.get("key_findings", []),
-        "actions": data.get("action_pack", {}),
-        "coordinator_rationale": data.get("coordinator_rationale", ""),
+        "actions": data.get("action_pack", {"immediate": [], "this_week": [], "watch": []}),
+        "coordinator_rationale": data.get("coordinator_rationale", "Fallback rationale generated due to synthesis output structure."),
     }
 
     await ev.emit(

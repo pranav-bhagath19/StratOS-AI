@@ -299,7 +299,12 @@ async def run_planner(state: AnalysisState) -> dict:
         max_tokens=2048,
     )
 
-    plan: list[ResearchStep] = extract_json(response_content)
+    try:
+        raw_plan = extract_json(response_content)
+        plan: list[ResearchStep] = raw_plan if isinstance(raw_plan, list) else []
+    except Exception as exc:
+        log.warning(f"Planner failed to extract JSON from LLM output ({exc}). Generating default plan.")
+        plan = []
 
     # Post-processing guarantee: every plan must cover all 5 Bright Data products.
     plan = _ensure_all_products(plan, analysis_type, target)

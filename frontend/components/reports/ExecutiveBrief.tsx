@@ -1,157 +1,155 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import { toast } from "sonner"
-import { Sparkles, Copy, Download, Link2, Send, X, Loader2, FileText, CheckCircle2 } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ActionColumn } from "./RecommendationCard"
+import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Copy, Download, Link2, Send, X, Loader2, ShieldCheck, ArrowRight, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+import { Divider } from "@/components/ui/Divider";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "")
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 
 export type Brief = {
-  market_move_score: number
-  recommended_move: string
-  confidence_score: number
-  executive_summary: string
+  market_move_score: number;
+  recommended_move: string;
+  confidence_score: number;
+  executive_summary: string;
   action_pack: {
-    headline?: string
-    situation?: string
-    actions?: { immediate?: string[]; this_week?: string[]; watch?: string[] }
-    coordinator_rationale?: string
-  }
-}
+    headline?: string;
+    situation?: string;
+    actions?: { immediate?: string[]; this_week?: string[]; watch?: string[] };
+    coordinator_rationale?: string;
+  };
+};
 
 export type AnalysisDiff = {
-  has_prior: boolean
-  prior_analysis_id?: string
-  prior_date?: string
-  score_delta?: number
-  confidence_delta?: number
-  move_changed?: boolean
-  prior_move?: string
-  current_move?: string
-  new_findings?: string[]
-  resolved_findings?: string[]
-  prior_summary?: string
-}
+  has_prior: boolean;
+  prior_analysis_id?: string;
+  prior_date?: string;
+  score_delta?: number;
+  confidence_delta?: number;
+  move_changed?: boolean;
+  prior_move?: string;
+  current_move?: string;
+  new_findings?: string[];
+  resolved_findings?: string[];
+  prior_summary?: string;
+};
 
-const MOVE_STYLES: Record<string, string> = {
+const MOVE_BADGE_STYLES: Record<string, string> = {
   ATTACK: "text-red-400 border-red-500/40 bg-red-500/10 shadow-lg",
   DEFEND: "text-amber-400 border-amber-500/40 bg-amber-500/10 shadow-lg",
   ESCALATE: "text-red-300 border-red-400/40 bg-red-400/10 shadow-lg",
   WAIT: "text-zinc-400 border-zinc-600 bg-zinc-800/40",
-  MONITOR: "text-sky-400 border-sky-500/40 bg-sky-500/10 shadow-lg",
-}
+  MONITOR: "text-blue-400 border-blue-500/40 bg-blue-500/10 shadow-lg",
+};
 
 export function ExecutiveBriefPanel({
   brief,
   analysisId,
   target,
 }: {
-  brief: Brief
-  analysisId: string | null
-  target: string
+  brief: Brief;
+  analysisId: string | null;
+  target: string;
 }) {
-  const { market_move_score, confidence_score, action_pack } = brief
-  const recommended_move = (brief.recommended_move ?? "monitor").toUpperCase()
-  const actions = action_pack.actions ?? {}
+  const { market_move_score, confidence_score, action_pack } = brief;
+  const recommended_move = (brief.recommended_move ?? "monitor").toUpperCase();
+  const moveStyle = MOVE_BADGE_STYLES[recommended_move] ?? "text-blue-400 border-blue-500/40 bg-blue-500/10 shadow-lg";
+  const actions = action_pack.actions ?? {};
 
-  const [diff, setDiff] = useState<AnalysisDiff | null>(null)
-  const [diffModal, setDiffModal] = useState(false)
-  const [slackModal, setSlackModal] = useState(false)
+  const [diff, setDiff] = useState<AnalysisDiff | null>(null);
+  const [diffModal, setDiffModal] = useState(false);
+  const [slackModal, setSlackModal] = useState(false);
   const [slackUrl, setSlackUrl] = useState(() =>
-    typeof window !== "undefined" ? (localStorage.getItem("stratos_slack_webhook") ?? "") : ""
-  )
-  const [slackSending, setSlackSending] = useState(false)
+    typeof window !== "undefined" ? localStorage.getItem("stratos_slack_webhook") ?? "" : ""
+  );
+  const [slackSending, setSlackSending] = useState(false);
 
   useEffect(() => {
-    if (!analysisId) return
-    let cancelled = false
+    if (!analysisId) return;
+    let cancelled = false;
     fetch(`${API_BASE}/analyses/${analysisId}/diff`)
       .then((r) => r.json())
-      .then((d: AnalysisDiff) => { if (!cancelled) setDiff(d.has_prior ? d : null) })
-      .catch(() => { if (!cancelled) setDiff(null) })
-    return () => { cancelled = true }
-  }, [analysisId])
+      .then((d: AnalysisDiff) => {
+        if (!cancelled) setDiff(d.has_prior ? d : null);
+      })
+      .catch(() => {
+        if (!cancelled) setDiff(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [analysisId]);
 
   const handleCopyMarkdown = () => {
-    const move = recommended_move
     const lines = [
-      `# StratOS AI — Executive Strategic Brief`,
+      `# STRATOS AI · EXECUTIVE BRIEF REPORT`,
+      `Target: ${target}`,
+      `Market Move Score: ${market_move_score}/100`,
+      `Recommended Move: ${recommended_move}`,
+      `Confidence Verification: ${confidence_score}/100`,
       ``,
-      `**Target:** ${target}  `,
-      `**Recommended Move:** ${move}  `,
-      `**Market Move Score:** ${market_move_score}/100  `,
-      `**Confidence:** ${confidence_score}/100`,
-      ``,
-      `## Situation`,
+      `## EXECUTIVE SUMMARY`,
       action_pack.headline ?? "",
-      action_pack.situation ?? "",
+      action_pack.situation ?? brief.executive_summary ?? "",
       ``,
-      `## Immediate Actions`,
+      `## RECOMMENDED ACTIONS`,
+      `### Immediate`,
       ...(actions.immediate ?? []).map((a) => `- ${a}`),
-      ``,
-      `## This Week`,
+      `### This Week`,
       ...(actions.this_week ?? []).map((a) => `- ${a}`),
-      ``,
-      `## Watch`,
+      `### Watch`,
       ...(actions.watch ?? []).map((a) => `- ${a}`),
       ``,
-      `## Coordinator Rationale`,
+      `## COORDINATOR RATIONALE`,
       action_pack.coordinator_rationale ?? "",
-      ``,
-      `---`,
-      `*Generated by StratOS AI · Strategic Intelligence Brief*`,
-    ]
+    ];
     navigator.clipboard.writeText(lines.join("\n")).then(() => {
-      toast.success("Brief copied to clipboard.")
-    })
-  }
+      toast.success("Intelligence Report copied to clipboard.");
+    });
+  };
 
   const handleDownloadPDF = async () => {
-    if (!analysisId) return
+    if (!analysisId) return;
     try {
-      const res = await fetch(`${API_BASE}/analyses/${analysisId}/brief/pdf`)
+      const res = await fetch(`${API_BASE}/analyses/${analysisId}/brief/pdf`);
       if (!res.ok) {
-        const err = (await res.json()) as { detail?: string }
-        toast.error("PDF unavailable", { description: err.detail ?? "Check server logs." })
-        return
+        toast.error("PDF unavailable");
+        return;
       }
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `stratos-brief-${target.replace(/\./g, "-")}-${analysisId.slice(0, 8)}.pdf`
-      a.click()
-      URL.revokeObjectURL(url)
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `stratos-report-${target.replace(/\./g, "-")}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch {
-      toast.error("PDF download failed.")
+      toast.error("PDF download failed.");
     }
-  }
+  };
 
   const handleShare = async () => {
-    if (!analysisId) return
+    if (!analysisId) return;
     try {
       const res = await fetch(`${API_BASE}/analyses/${analysisId}/brief/share`, {
         method: "POST",
-      })
-      if (!res.ok) throw new Error()
-      const { share_url } = (await res.json()) as { share_url: string }
-      const full = `${window.location.origin}${share_url}`
-      await navigator.clipboard.writeText(full)
-      toast.success("Share link copied to clipboard.", { description: full })
+      });
+      if (!res.ok) throw new Error();
+      const { share_url } = (await res.json()) as { share_url: string };
+      const full = `${window.location.origin}${share_url}`;
+      await navigator.clipboard.writeText(full);
+      toast.success("Share link copied to clipboard.", { description: full });
     } catch {
-      toast.error("Share failed.")
+      toast.error("Share failed.");
     }
-  }
+  };
 
   const handleSendSlack = async () => {
-    if (!analysisId || !slackUrl.trim()) return
-    localStorage.setItem("stratos_slack_webhook", slackUrl.trim())
-    setSlackSending(true)
+    if (!analysisId || !slackUrl.trim()) return;
+    localStorage.setItem("stratos_slack_webhook", slackUrl.trim());
+    setSlackSending(true);
     try {
       const res = await fetch(`${API_BASE}/analyses/${analysisId}/notify`, {
         method: "POST",
@@ -160,360 +158,226 @@ export function ExecutiveBriefPanel({
           webhook_url: slackUrl.trim(),
           share_base: window.location.origin,
         }),
-      })
-      if (!res.ok) {
-        const err = (await res.json()) as { detail?: string }
-        toast.error("Slack delivery failed", { description: err.detail ?? "Check webhook URL." })
-        return
-      }
-      toast.success("Brief sent to Slack!")
-      setSlackModal(false)
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Brief sent to Slack!");
+      setSlackModal(false);
     } catch {
-      toast.error("Slack delivery failed.")
+      toast.error("Slack delivery failed.");
     } finally {
-      setSlackSending(false)
+      setSlackSending(false);
     }
-  }
-
-  const moveStyle = MOVE_STYLES[recommended_move] ?? "text-zinc-400 border-zinc-600 bg-zinc-800/40"
+  };
 
   return (
-    <div className="space-y-6 font-sans">
-      {/* Diff Notification Bar */}
+    <div className="space-y-8 font-sans max-w-4xl mx-auto border-t border-white/15 pt-10">
+      {/* Run Comparison Delta Banner */}
       {diff && diff.has_prior && (
-        <Card className="border border-white/20 bg-zinc-950 px-5 py-3 shadow-lg">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-4 flex-wrap">
-              <span className="font-mono text-[10px] text-zinc-300 border border-white/20 px-2 py-0.5 rounded">
-                VS. {diff.prior_date ? new Date(diff.prior_date).toLocaleDateString().toUpperCase() : "PRIOR"} RUN
-              </span>
-              {diff.score_delta !== undefined && (
-                <span className={`font-mono text-xs font-bold ${
-                  diff.score_delta > 0 ? "text-emerald-400" : diff.score_delta < 0 ? "text-red-400" : "text-zinc-500"
-                }`}>
-                  Score {diff.score_delta > 0 ? "+" : ""}{diff.score_delta}
-                </span>
-              )}
-              {diff.move_changed && (
-                <span className="font-mono text-xs text-amber-400 font-semibold">
-                  Move changed: {diff.prior_move} → {diff.current_move}
-                </span>
-              )}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setDiffModal(true)}
-              className="font-mono text-xs"
-            >
-              View detailed diff →
-            </Button>
+        <div className="border border-blue-500/30 bg-blue-500/10 p-4 rounded-xl flex items-center justify-between flex-wrap gap-4 font-sans text-xs">
+          <div className="flex items-center gap-3">
+            <span className="text-zinc-400 uppercase font-semibold">RUN DELTA VS PRIOR</span>
+            <span className="text-blue-400 font-bold">
+              Score {diff.score_delta ? (diff.score_delta > 0 ? `+${diff.score_delta}` : diff.score_delta) : "0"}
+            </span>
           </div>
-        </Card>
+          <button onClick={() => setDiffModal(true)} className="text-zinc-300 hover:text-white underline font-semibold">
+            View Run Comparison →
+          </button>
+        </div>
       )}
 
-      {/* Main Editorial Brief Container */}
-      <div className="border border-white/10 bg-zinc-950 rounded-2xl p-6 sm:p-10 shadow-2xl space-y-8">
-        {/* Editorial Report Header */}
-        <div className="border-b border-white/10 pb-6 flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-xs font-bold text-zinc-500 tracking-widest uppercase">
-                STRATOS AI · INTELLIGENCE REPORT
-              </span>
-              <span className="font-mono text-[10px] text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 rounded">
-                STATUS: VERIFIED
-              </span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              {target}
-            </h1>
-          </div>
-
-          <div className="text-right space-y-1">
-            <span className="font-mono text-xs text-zinc-500 block">CONFIDENCE VERIFICATION</span>
-            <span className="font-mono text-3xl font-extrabold text-white">{confidence_score}%</span>
-          </div>
+      {/* Editorial Title Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+        <div className="space-y-2">
+          <SectionLabel>EXECUTIVE INTELLIGENCE BRIEF</SectionLabel>
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+            {target}
+          </h1>
         </div>
 
-        {/* Scores & Recommended Move Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-black p-6 rounded-xl border border-white/10">
-          <div className="space-y-1">
-            <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest">
-              MARKET MOVE SCORE
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono text-5xl font-extrabold text-white">{market_move_score}</span>
-              <span className="font-mono text-xl text-zinc-600">/ 100</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-widest block">
-              RECOMMENDED STRATEGIC MOVE
-            </span>
-            <span className={`inline-block font-mono text-lg font-extrabold tracking-widest px-6 py-2 rounded-lg border ${moveStyle}`}>
-              {recommended_move}
-            </span>
-          </div>
+        <div className="flex items-center gap-2 text-xs font-semibold text-zinc-300 bg-zinc-950 border border-white/15 px-3.5 py-2 rounded-xl shrink-0">
+          <ShieldCheck className="h-4 w-4 text-blue-400" />
+          <span>CONFIDENCE {confidence_score}%</span>
         </div>
+      </div>
 
-        {/* Situation Assessment */}
-        {action_pack.headline && (
-          <div className="space-y-3 border-t border-white/10 pt-6">
-            <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">
-              01 // SITUATION ASSESSMENT
-            </span>
-            <h2 className="text-xl sm:text-2xl font-bold text-white leading-snug">
-              {action_pack.headline}
-            </h2>
-            {action_pack.situation && (
-              <p className="text-sm text-zinc-300 leading-relaxed max-w-3xl">
-                {action_pack.situation}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* 3-Column Action Pack */}
-        <div className="space-y-3 border-t border-white/10 pt-6">
-          <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">
-            02 // RECOMMENDED ACTIONS
+      {/* Market Move & Strategic Score Box */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-zinc-950 p-6 sm:p-7 rounded-2xl border border-white/15 shadow-xl">
+        <div className="space-y-2">
+          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+            MARKET MOVE SCORE
           </span>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <ActionColumn label="IMMEDIATE" items={actions.immediate ?? []} accentClass="text-red-400 border-red-500/30 bg-red-500/5" />
-            <ActionColumn label="THIS WEEK" items={actions.this_week ?? []} accentClass="text-amber-400 border-amber-500/30 bg-amber-500/5" />
-            <ActionColumn label="WATCH" items={actions.watch ?? []} accentClass="text-sky-400 border-sky-500/30 bg-sky-500/5" />
+          <div className="flex items-baseline gap-2 font-sans">
+            <span className="text-5xl font-extrabold text-white">{market_move_score}</span>
+            <span className="text-lg text-zinc-500 font-bold">/ 100</span>
+          </div>
+          {/* Progress Bar Indicator */}
+          <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden mt-1">
+            <div
+              className="h-full bg-blue-400 rounded-full transition-all duration-500"
+              style={{ width: `${market_move_score}%` }}
+            />
           </div>
         </div>
 
-        {/* Coordinator Rationale */}
-        {action_pack.coordinator_rationale && (
-          <div className="space-y-3 border-t border-white/10 pt-6">
-            <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">
-              03 // COORDINATOR RATIONALE
-            </span>
-            <div className="bg-black p-5 rounded-xl border border-white/10 font-mono text-xs text-zinc-300 leading-relaxed">
-              {action_pack.coordinator_rationale}
-            </div>
-          </div>
-        )}
-
-        {/* Editorial Action Bar */}
-        <div className="border-t border-white/10 pt-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <Button variant="secondary" size="sm" onClick={handleCopyMarkdown}>
-              <Copy className="h-3.5 w-3.5 mr-1" />
-              Copy Markdown
-            </Button>
-            <Button variant="secondary" size="sm" onClick={handleDownloadPDF}>
-              <Download className="h-3.5 w-3.5 mr-1" />
-              Download PDF
-            </Button>
-            <Button variant="secondary" size="sm" onClick={handleShare}>
-              <Link2 className="h-3.5 w-3.5 mr-1" />
-              Share Link
-            </Button>
-            <Button variant="secondary" size="sm" onClick={() => setSlackModal(true)}>
-              <Send className="h-3.5 w-3.5 mr-1" />
-              Send to Slack
-            </Button>
-          </div>
-
-          <span className="font-mono text-[10px] text-zinc-500">
-            REPORT ID: {analysisId ? analysisId.slice(0, 8).toUpperCase() : "—"}
+        <div className="space-y-2 flex flex-col justify-center sm:items-end text-left sm:text-right">
+          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+            RECOMMENDED STRATEGIC MOVE
+          </span>
+          <span className={`inline-block font-sans text-lg font-extrabold tracking-wider px-5 py-2 rounded-xl border uppercase ${moveStyle}`}>
+            {recommended_move}
           </span>
         </div>
       </div>
 
-      {/* Slack Webhook Modal */}
+      {/* Executive Summary & Situation Assessment */}
+      <div className="border border-white/10 bg-zinc-950 p-6 rounded-2xl space-y-3">
+        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+          SITUATION ASSESSMENT
+        </span>
+        <h2 className="text-xl font-extrabold text-white leading-snug">
+          {action_pack.headline || `${target} Strategic Market Assessment`}
+        </h2>
+        <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-3xl">
+          {action_pack.situation || brief.executive_summary}
+        </p>
+      </div>
+
+      {/* Action Pack 3-Column Grid */}
+      <div className="space-y-3">
+        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+          RECOMMENDED ACTIONS
+        </span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-sans">
+          {/* Immediate Actions */}
+          <div className="border border-white/10 bg-zinc-950 p-5 rounded-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              <span className="text-[10px] text-red-400 font-extrabold uppercase tracking-wider">
+                01 IMMEDIATE
+              </span>
+              <Zap className="h-3.5 w-3.5 text-red-400" />
+            </div>
+            <ul className="space-y-2 text-xs text-zinc-300">
+              {(actions.immediate ?? ["Deploy competitive displacement campaign"]).map((a, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <ArrowRight className="h-3.5 w-3.5 text-red-400 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">{a}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* This Week Actions */}
+          <div className="border border-white/10 bg-zinc-950 p-5 rounded-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              <span className="text-[10px] text-amber-400 font-extrabold uppercase tracking-wider">
+                02 THIS WEEK
+              </span>
+              <Zap className="h-3.5 w-3.5 text-amber-400" />
+            </div>
+            <ul className="space-y-2 text-xs text-zinc-300">
+              {(actions.this_week ?? ["Brief sales organization on product gap"]).map((a, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <ArrowRight className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">{a}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Watch Actions */}
+          <div className="border border-white/10 bg-zinc-950 p-5 rounded-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              <span className="text-[10px] text-blue-400 font-extrabold uppercase tracking-wider">
+                03 WATCH
+              </span>
+              <Zap className="h-3.5 w-3.5 text-blue-400" />
+            </div>
+            <ul className="space-y-2 text-xs text-zinc-300">
+              {(actions.watch ?? ["Track quarterly release telemetry"]).map((a, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <ArrowRight className="h-3.5 w-3.5 text-blue-400 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">{a}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Coordinator Rationale */}
+      {action_pack.coordinator_rationale && (
+        <div className="border border-white/10 bg-zinc-950 p-5 rounded-2xl space-y-2">
+          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+            COORDINATOR RATIONALE
+          </span>
+          <p className="text-xs text-zinc-400 leading-relaxed font-sans">
+            {action_pack.coordinator_rationale}
+          </p>
+        </div>
+      )}
+
+      {/* Export & Action Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 font-sans text-xs pt-4 border-t border-white/10">
+        <div className="flex items-center gap-3 flex-wrap">
+          <Button variant="secondary" size="sm" onClick={handleCopyMarkdown} className="font-bold text-xs uppercase tracking-wider">
+            <Copy className="h-3.5 w-3.5 mr-1.5" />
+            Copy Markdown
+          </Button>
+          <Button variant="secondary" size="sm" onClick={handleDownloadPDF} className="font-bold text-xs uppercase tracking-wider">
+            <Download className="h-3.5 w-3.5 mr-1.5" />
+            Download PDF
+          </Button>
+          <Button variant="secondary" size="sm" onClick={handleShare} className="font-bold text-xs uppercase tracking-wider">
+            <Link2 className="h-3.5 w-3.5 mr-1.5" />
+            Share Link
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => setSlackModal(true)} className="font-bold text-xs uppercase tracking-wider">
+            <Send className="h-3.5 w-3.5 mr-1.5" />
+            Slack
+          </Button>
+        </div>
+      </div>
+
+      {/* Slack Modal */}
       {slackModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 overflow-y-auto">
-          <Card className="border border-white/20 bg-zinc-950 w-full max-w-md p-6 space-y-4 shadow-2xl rounded-2xl my-auto">
-            <CardHeader className="p-0 flex flex-row items-center justify-between">
-              <div>
-                <p className="font-mono text-[10px] text-zinc-500 tracking-wider uppercase mb-1">Slack Delivery</p>
-                <CardTitle className="text-base font-bold text-white">Send Battle Brief to Slack</CardTitle>
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => setSlackModal(false)} className="h-8 w-8 text-zinc-400 hover:text-white">
-                <X className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="p-0 space-y-3">
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Paste a Slack Incoming Webhook URL. The brief will be posted as a formatted Block Kit message.
-              </p>
-              <Input
-                type="url"
-                value={slackUrl}
-                onChange={(e) => setSlackUrl(e.target.value)}
-                placeholder="https://hooks.slack.com/services/T.../B.../..."
-                className="bg-black border-white/10 font-mono text-xs text-zinc-200"
-                onKeyDown={(e) => e.key === "Enter" && handleSendSlack()}
-              />
-            </CardContent>
-            <CardFooter className="p-0 pt-2 flex items-center justify-end gap-3">
-              <Button variant="ghost" size="sm" onClick={() => setSlackModal(false)} className="font-mono text-xs text-zinc-400">
-                Cancel
-              </Button>
-              <Button variant="primary" size="sm" onClick={handleSendSlack} disabled={!slackUrl.trim() || slackSending}>
-                {slackSending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
-                {slackSending ? "Sending…" : "Send Brief"}
-              </Button>
-            </CardFooter>
-          </Card>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 font-sans">
+          <div className="border border-white/15 bg-zinc-950 p-6 rounded-2xl max-w-md w-full space-y-4 text-xs">
+            <div className="flex justify-between items-center text-white">
+              <span className="font-bold text-sm">SLACK INTEGRATION</span>
+              <button onClick={() => setSlackModal(false)}><X className="h-4 w-4 text-zinc-400 hover:text-white" /></button>
+            </div>
+            <p className="text-zinc-400">Enter your Slack Webhook URL to post this brief to your channel.</p>
+            <input
+              type="url"
+              value={slackUrl}
+              onChange={(e) => setSlackUrl(e.target.value)}
+              placeholder="https://hooks.slack.com/services/..."
+              className="w-full bg-black border border-white/15 p-3 rounded-xl text-white font-mono"
+            />
+            <Button variant="primary" size="sm" onClick={handleSendSlack} disabled={slackSending} className="w-full font-bold uppercase tracking-wider">
+              {slackSending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
+              Send Report to Slack
+            </Button>
+          </div>
         </div>
       )}
 
       {/* Diff Modal */}
       {diffModal && diff && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 overflow-y-auto">
-          <Card className="border border-white/20 bg-zinc-950 w-full max-w-xl p-6 sm:p-8 space-y-5 shadow-2xl rounded-2xl my-auto max-h-[85vh] flex flex-col">
-            <CardHeader className="p-0 flex flex-row items-center justify-between shrink-0">
-              <div>
-                <p className="font-mono text-[10px] text-zinc-500 tracking-wider uppercase mb-1">
-                  Run Comparison
-                </p>
-                <CardTitle className="text-lg font-bold text-white">
-                  Delta Analysis vs Prior Run
-                </CardTitle>
-                {diff.prior_date && (
-                  <p className="font-mono text-xs text-zinc-400 mt-1">
-                    Compared against run on {new Date(diff.prior_date).toLocaleString()}
-                  </p>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setDiffModal(false)}
-                className="h-8 w-8 text-zinc-400 hover:text-white shrink-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-
-            <CardContent className="p-0 space-y-5 font-sans overflow-y-auto pr-2 flex-1 [scrollbar-width:thin] [scrollbar-color:#3f3f46_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-zinc-700 [&::-webkit-scrollbar-thumb]:rounded">
-              {/* Score & Move Delta Summary Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">
-                  <span className="font-mono text-[10px] text-zinc-500 block uppercase tracking-wider">
-                    Score Delta
-                  </span>
-                  <div className="flex items-center gap-1.5 font-mono text-xl font-extrabold">
-                    {diff.score_delta !== undefined && (
-                      <span
-                        className={
-                          diff.score_delta > 0
-                            ? "text-emerald-400"
-                            : diff.score_delta < 0
-                            ? "text-red-400"
-                            : "text-zinc-400"
-                        }
-                      >
-                        {diff.score_delta > 0 ? `+${diff.score_delta}` : diff.score_delta}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">
-                  <span className="font-mono text-[10px] text-zinc-500 block uppercase tracking-wider">
-                    Confidence Delta
-                  </span>
-                  <div className="flex items-center gap-1.5 font-mono text-xl font-extrabold">
-                    {diff.confidence_delta !== undefined && (
-                      <span
-                        className={
-                          diff.confidence_delta > 0
-                            ? "text-emerald-400"
-                            : diff.confidence_delta < 0
-                            ? "text-red-400"
-                            : "text-zinc-400"
-                        }
-                      >
-                        {diff.confidence_delta > 0 ? `+${diff.confidence_delta}%` : `${diff.confidence_delta}%`}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">
-                  <span className="font-mono text-[10px] text-zinc-500 block uppercase tracking-wider">
-                    Move Status
-                  </span>
-                  <div className="font-mono text-xs font-bold text-zinc-200 mt-1">
-                    {diff.move_changed ? (
-                      <span className="text-amber-400">
-                        {diff.prior_move} → {diff.current_move}
-                      </span>
-                    ) : (
-                      <span className="text-zinc-400">Unchanged ({diff.current_move})</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Prior Situation Summary */}
-              {diff.prior_summary && (
-                <div className="space-y-2">
-                  <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">
-                    01 // PRIOR RUN SUMMARY
-                  </span>
-                  <div className="bg-black p-4 rounded-xl border border-white/10 text-xs text-zinc-300 leading-relaxed">
-                    {diff.prior_summary}
-                  </div>
-                </div>
-              )}
-
-              {/* New Findings */}
-              {diff.new_findings && diff.new_findings.length > 0 && (
-                <div className="space-y-2">
-                  <span className="font-mono text-[10px] text-emerald-400 font-bold uppercase tracking-widest block">
-                    02 // NEW ACTION ITEMS / FINDINGS
-                  </span>
-                  <div className="bg-emerald-950/20 p-4 rounded-xl border border-emerald-500/20 space-y-2.5">
-                    {diff.new_findings.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 text-xs text-zinc-200">
-                        <span className="font-mono text-emerald-400 shrink-0 font-bold mt-0.5">+</span>
-                        <span className="leading-relaxed">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Resolved / Replaced Findings */}
-              {diff.resolved_findings && diff.resolved_findings.length > 0 && (
-                <div className="space-y-2">
-                  <span className="font-mono text-[10px] text-zinc-500 font-bold uppercase tracking-widest block">
-                    03 // RESOLVED / SUPERSEDED ITEMS
-                  </span>
-                  <div className="bg-black p-4 rounded-xl border border-white/10 space-y-2.5">
-                    {diff.resolved_findings.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 text-xs text-zinc-400">
-                        <span className="font-mono text-zinc-500 shrink-0 font-bold mt-0.5">-</span>
-                        <span className="line-through leading-relaxed">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-
-            <CardFooter className="p-0 pt-3 border-t border-white/10 flex items-center justify-end shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDiffModal(false)}
-                className="font-mono text-xs text-zinc-400 hover:text-white"
-              >
-                Close
-              </Button>
-            </CardFooter>
-          </Card>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 font-sans">
+          <div className="border border-white/15 bg-zinc-950 p-6 rounded-2xl max-w-lg w-full space-y-4 text-xs">
+            <div className="flex justify-between items-center text-white">
+              <span className="font-bold text-sm">RUN COMPARISON DELTA</span>
+              <button onClick={() => setDiffModal(false)}><X className="h-4 w-4 text-zinc-400 hover:text-white" /></button>
+            </div>
+            <p className="text-zinc-300">Score Delta: <span className="font-bold text-white">{diff.score_delta}</span></p>
+            {diff.prior_summary && <p className="text-zinc-400 leading-relaxed">{diff.prior_summary}</p>}
+          </div>
         </div>
       )}
     </div>
-  )
+  );
 }
+
+export default ExecutiveBriefPanel;
