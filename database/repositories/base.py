@@ -1,42 +1,49 @@
 import os
 import json
 import logging
+import threading
+from pathlib import Path
 from database.firebase.firestore import DatabaseProvider
 
 log = logging.getLogger(__name__)
 
-LOCAL_DB_FILE = "firebase_local.json"
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+LOCAL_DB_FILE = str(_REPO_ROOT / "firebase_local.json")
+_db_lock = threading.Lock()
 
 def _load_local_db() -> dict:
-    if not os.path.exists(LOCAL_DB_FILE):
-        return {
-            "analyses": {},
-            "briefs": {},
-            "intelligence_events": {},
-            "citations": {},
-            "analysis_schedules": {},
-            "scraper_cache": {}
-        }
-    try:
-        with open(LOCAL_DB_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as exc:
-        log.warning(f"Firebase Local: Failed to read local DB: {exc}")
-        return {
-            "analyses": {},
-            "briefs": {},
-            "intelligence_events": {},
-            "citations": {},
-            "analysis_schedules": {},
-            "scraper_cache": {}
-        }
+    with _db_lock:
+        if not os.path.exists(LOCAL_DB_FILE):
+            return {
+                "analyses": {},
+                "briefs": {},
+                "intelligence_events": {},
+                "citations": {},
+                "analysis_schedules": {},
+                "scraper_cache": {}
+            }
+        try:
+            with open(LOCAL_DB_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as exc:
+            log.warning(f"Firebase Local: Failed to read local DB: {exc}")
+            return {
+                "analyses": {},
+                "briefs": {},
+                "intelligence_events": {},
+                "citations": {},
+                "analysis_schedules": {},
+                "scraper_cache": {}
+            }
 
 def _save_local_db(db: dict):
-    try:
-        with open(LOCAL_DB_FILE, "w", encoding="utf-8") as f:
-            json.dump(db, f, indent=2, ensure_ascii=False)
-    except Exception as exc:
-        log.warning(f"Firebase Local: Failed to save local DB: {exc}")
+    with _db_lock:
+        try:
+            with open(LOCAL_DB_FILE, "w", encoding="utf-8") as f:
+                json.dump(db, f, indent=2, ensure_ascii=False)
+        except Exception as exc:
+            log.warning(f"Firebase Local: Failed to save local DB: {exc}")
+
 
 
 class BaseRepository:

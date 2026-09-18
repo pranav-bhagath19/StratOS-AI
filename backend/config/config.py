@@ -12,16 +12,20 @@ _ENV_FILE = _REPO_ROOT / ".env"
 class Settings(BaseSettings):
     # OpenRouter
     openrouter_api_key: str = ""
-    openrouter_model: str = "anthropic/claude-3.5-sonnet"
+    openrouter_model: str = "anthropic/claude-sonnet-5"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
-    # Free-tier fallback model rotation (verified live 2026-08-01 via /api/v1/models).
-    # Tried in order; on 429 the next model is used immediately.
+    # Free-tier fallback model rotation (verified live on OpenRouter).
+    # Tried in order; on 429/5xx the next model is used immediately.
     openrouter_free_models: list[str] = [
+        "nvidia/nemotron-3.5-lightning:free",
         "google/gemma-4-31b-it:free",
         "poolside/laguna-s-2.1:free",
-        "nvidia/nemotron-3-super-120b-a12b:free",
-        "nvidia/nemotron-nano-9b-v2:free",
     ]
+
+    # Google Gemini Fallback
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-3.6-flash"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
     # Provider Selection
     search_provider: str = "duckduckgo"
@@ -50,7 +54,7 @@ class Settings(BaseSettings):
     # Timeouts
     search_timeout: float = 15.0
     fetch_timeout: float = 30.0
-    browser_timeout: float = 35.0
+    browser_timeout: float = 15.0
 
     model_config = SettingsConfigDict(env_file=str(_ENV_FILE), extra="ignore")
 

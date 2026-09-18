@@ -227,19 +227,47 @@ function DashboardContent() {
       }
     });
 
-    es.addEventListener("done", async () => {
+    es.addEventListener("done", async (e: MessageEvent) => {
       es.close();
       esRef.current = null;
-      pushLog("─────────────  ANALYSIS COMPLETE  ─────────────");
+      setIsDeploying(false);
+
+      let serverStatus = "completed";
+      let hasBrief = false;
       try {
-        const r = await fetch(`${API_BASE}/analyses/${id}`);
-        const data = (await r.json()) as { brief: Brief | null };
-        if (data.brief) setBrief(data.brief);
+        if (e.data) {
+          const parsed = JSON.parse(e.data as string);
+          if (parsed.status) serverStatus = parsed.status;
+          hasBrief = !!parsed.has_brief;
+        }
       } catch {
         // best-effort
       }
-      setIsDeploying(false);
-      setPhase("complete");
+
+      try {
+        const r = await fetch(`${API_BASE}/analyses/${id}`);
+        const data = (await r.json()) as { status?: string; brief: Brief | null };
+        if (data.status) {
+          serverStatus = data.status;
+        }
+        if (data.brief) {
+          setBrief(data.brief);
+          hasBrief = true;
+        }
+      } catch {
+        // best-effort
+      }
+
+      if (serverStatus === "failed" || serverStatus === "partial" || !hasBrief) {
+        pushLog("─────────────  ANALYSIS FAILED  ─────────────");
+        setPhase("failed");
+        toast.error("Analysis Failed", {
+          description: "Backend was unable to produce a validated strategic brief.",
+        });
+      } else {
+        pushLog("─────────────  ANALYSIS COMPLETE  ─────────────");
+        setPhase("complete");
+      }
     });
 
     es.onerror = () => {
@@ -341,6 +369,25 @@ function DashboardContent() {
             onReset={handleReset}
           />
 
+          {/* Failure Alert Banner */}
+          {phase === "failed" && (
+            <div className="border border-red-500/30 bg-red-950/20 p-6 rounded-xl space-y-4 font-sans text-center">
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-red-400">Intelligence Analysis Incomplete</h3>
+                <p className="text-xs text-zinc-400 max-w-lg mx-auto">
+                  The multi-agent pipeline was unable to gather sufficient verified evidence to synthesize a battle brief.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 text-xs font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+              >
+                Retry New Analysis
+              </button>
+            </div>
+          )}
+
           {/* Running Initialization Accent */}
           {phase === "running" && (
             <div className="relative border border-white/15 bg-black p-8 rounded-2xl overflow-hidden text-center space-y-4">
@@ -389,6 +436,8 @@ function DashboardContent() {
               )}
             </div>
           </div>
+
+
 
           {/* Executive Brief Output Report */}
           {phase === "complete" && brief && (

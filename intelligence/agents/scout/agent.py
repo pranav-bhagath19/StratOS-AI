@@ -27,44 +27,70 @@ Respond with ONLY the JSON object/array. No preamble, no explanation, no markdow
 ["Challenge 1...", "Challenge 2...", ...]"""
 
 
+from intelligence.agents.base.evidence import format_structured_evidence
+from intelligence.agents.base.llm import get_llm_result
+
 async def run_scout(state: AnalysisState) -> dict:
     analysis_id = state["analysis_id"]
     target = state["target"]
     findings = state["raw_findings"]
+    provider_calls = state.get("provider_calls", [])
 
     await ev.emit(analysis_id, "scout", "started", "Reviewing research for weaknesses…")
     await ev.emit(analysis_id, "scout", "thinking", "Probing data quality and gaps…")
 
-    response_content = await get_llm_response(
-        system_msg=_SYSTEM,
-        messages=[HumanMessage(content=f"Target: {target}\n\nFindings:\n{findings[:6000]}")],
-        max_tokens=1024,
-    )
+    # Structured evidence compression across all steps instead of hard truncation
+    structured_evidence = format_structured_evidence(findings, provider_calls, max_total_chars=8000)
 
     try:
-        raw_challenges = extract_json(response_content)
-        if isinstance(raw_challenges, list):
+        llm_res = await get_llm_result(
+            system_msg=_SYSTEM,
+            messages=[HumanMessage(content=f"Target: {target}\n\nFindings:\n{structured_evidence}")],
+            max_tokens=1024,
+        )
+    except Exception as exc:
+        error_msg = f"Scout LLM failed: {exc}"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "scout", "failed", error_msg)
+        raise RuntimeError(error_msg)
+
+    if not llm_res.success or not llm_res.content:
+        error_msg = f"Scout LLM failed: {llm_res.error or 'empty response'} (type={llm_res.error_type})"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "scout", "failed", error_msg)
+        raise RuntimeError(error_msg)
+
+    try:
+        raw_challenges = extract_json(llm_res.content)
+        if isinstance(raw_challenges, list) and len(raw_challenges) > 0:
             challenges = [str(c) for c in raw_challenges]
         else:
-            challenges = [str(raw_challenges)] if raw_challenges else []
+            error_msg = "Scout LLM returned invalid challenge format."
+            log.error(error_msg)
+            await ev.emit(analysis_id, "scout", "failed", error_msg)
+            raise RuntimeError(error_msg)
+    except RuntimeError:
+        raise
     except Exception as exc:
-        log.warning(f"Scout failed to extract JSON from LLM response ({exc}). Using fallback challenges.")
-        challenges = [
-            "Verify data recency and completeness across research provider steps.",
-            "Cross-reference key statements against secondary independent sources.",
-        ]
+        error_msg = f"Scout JSON extraction failed: {exc}"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "scout", "failed", error_msg)
+        raise RuntimeError(error_msg)
+
+    msg = f"Raised {len(challenges)} challenges"
 
     await ev.emit(
         analysis_id, "scout", "completed",
-        f"Raised {len(challenges)} challenges",
+        msg,
         payload={"challenges": challenges},
     )
 
     event: AgentEvent = {
         "agent": "scout",
         "event_type": "completed",
-        "message": f"{len(challenges)} challenges raised",
+        "message": msg,
         "provider_product": None,
         "payload": {"challenges": challenges},
     }
     return {"challenges": challenges, "events": [event]}
+

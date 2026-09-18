@@ -51,67 +51,126 @@ Confidence scale (apply to what you DID find):
 - 40–59: Partial — directional signals but no specific verifiable facts
 - Below 40: Genuinely insufficient — only speculation or hearsay found (NOT same as "few sources")
 
-Respond with ONLY the JSON object/array. No preamble, no explanation, no markdown code fences, no text before or after the JSON:
+OUTPUT FORMAT INSTRUCTIONS:
+You must output a single, complete JSON object starting with { and ending with }.
+Do not output preamble, markdown formatting, or commentary.
+
+Output JSON Structure:
 {
   "verified_findings": "## Verified Intelligence\\n...",
   "confidence_score": 72,
-  "resolutions": [{"challenge": "...", "verdict": "CONFIRMED|REFUTED|PARTIAL", "note": "..."}]
+  "resolutions": [{"challenge": "...", "verdict": "CONFIRMED", "note": "..."}]
 }"""
 
+
+from intelligence.agents.base.evidence import format_structured_evidence
+from intelligence.agents.base.llm import get_llm_result
 
 async def run_verifier(state: AnalysisState) -> dict:
     analysis_id = state["analysis_id"]
     target = state["target"]
-    findings = state["raw_findings"]
+    raw_findings = state["raw_findings"]
     challenges = state["challenges"]
     provider_calls = state["provider_calls"]
 
-    await ev.emit(analysis_id, "verifier", "started", "Resolving challenges and verifying facts…")
-    await ev.emit(analysis_id, "verifier", "thinking", "Cross-referencing data sources…")
+    await ev.emit(analysis_id, "verifier", "started", f"Verifying intelligence findings for {target}…")
+    await ev.emit(analysis_id, "verifier", "thinking", "Resolving Scout challenges against evidence…")
 
-    coverage_lines = [
-        f"- {c['product']} ({c['tool']}): {c.get('status', 'unknown')}, {c['latency_ms']}ms"
-        for c in provider_calls
-    ]
-    timeout_count = sum(1 for c in provider_calls if c.get("status") == "timeout")
+    # Bounded structured evidence view
+    structured_evidence = format_structured_evidence(
+        raw_findings=raw_findings,
+        provider_calls=provider_calls,
+        max_total_chars=8000,
+    )
+
+    # Count actual timeouts for the calibration rule
+    timeout_count = sum(
+        1 for c in provider_calls
+        if c.get("status") == "timeout"
+    )
     penalty = min(timeout_count * 5, 15)
 
     human = (
         f"Target: {target}\n\n"
-        f"Research coverage ({len(provider_calls)} provider calls):\n"
-        + "\n".join(coverage_lines)
+        f"Step summary: {len(provider_calls)} calls executed"
         + f"\n\nTimed-out steps: {timeout_count} → apply -{penalty} confidence penalty (max -15)\n\n"
-        f"Research Findings:\n{findings[:4500]}\n\n"
+        f"Research Findings:\n{structured_evidence}\n\n"
         f"Scout Challenges:\n{json.dumps(challenges, indent=2)}"
     )
 
-    response_content = await get_llm_response(
-        system_msg=_SYSTEM,
-        messages=[HumanMessage(content=human)],
-        max_tokens=2048,
-    )
+    try:
+        llm_res = await get_llm_result(
+            system_msg=_SYSTEM,
+            messages=[HumanMessage(content=human)],
+            max_tokens=3000,
+        )
+    except Exception as exc:
+        error_msg = f"Verifier LLM failed: {exc}"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "verifier", "failed", error_msg)
+        raise RuntimeError(error_msg)
+
+    if not llm_res.success or not llm_res.content:
+        error_msg = f"Verifier LLM failed: {llm_res.error or 'empty response'} (type={llm_res.error_type})"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "verifier", "failed", error_msg)
+        raise RuntimeError(error_msg)
 
     try:
-        data = extract_json(response_content)
-        if not isinstance(data, dict):
-            data = {}
-    except Exception as exc:
-        log.warning(f"Verifier failed to extract JSON from LLM output ({exc}). Using fallback verified findings.")
-        data = {}
+        extracted = extract_json(llm_res.content)
+        if isinstance(extracted, list) and len(extracted) > 0 and isinstance(extracted[0], dict):
+            extracted = extracted[0]
 
-    verified_findings = data.get("verified_findings", findings[:2000] if findings else "Research completed with available provider data.")
-    confidence_score = max(0, min(100, int(data.get("confidence_score", 60))))
+        if isinstance(extracted, dict):
+            # Normalise confidence score key if alternative name was used
+            if "confidence_score" not in extracted:
+                for alt in ("confidence", "score", "confidenceScore", "overall_confidence"):
+                    if alt in extracted:
+                        extracted["confidence_score"] = extracted[alt]
+                        break
+            if "confidence_score" not in extracted:
+                # Check inside any sub-dictionary
+                for val in extracted.values():
+                    if isinstance(val, dict) and ("confidence_score" in val or "confidence" in val):
+                        extracted["confidence_score"] = val.get("confidence_score", val.get("confidence"))
+                        break
+
+            # Regex fallback for confidence_score if still missing from dict
+            if "confidence_score" not in extracted:
+                import re
+                m = re.search(r'["\']?confidence(?:_score)?["\']?\s*[:=]\s*(\d+)', llm_res.content, re.IGNORECASE)
+                if m:
+                    extracted["confidence_score"] = int(m.group(1))
+
+        if not isinstance(extracted, dict) or "confidence_score" not in extracted:
+            error_msg = "Verifier LLM returned invalid format (expected dict with confidence_score)."
+            log.error(error_msg)
+            await ev.emit(analysis_id, "verifier", "failed", error_msg)
+            raise RuntimeError(error_msg)
+        data = extracted
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        error_msg = f"Verifier JSON extraction failed: {exc}"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "verifier", "failed", error_msg)
+        raise RuntimeError(error_msg)
+
+    confidence_score = max(0, min(100, int(data["confidence_score"])))
+    verified_findings = data.get("verified_findings") or data.get("findings") or data.get("summary") or ""
+
+    msg = f"Confidence: {confidence_score}/100"
 
     await ev.emit(
         analysis_id, "verifier", "completed",
-        f"Confidence: {confidence_score}/100",
+        msg,
         payload={"confidence_score": confidence_score},
     )
 
     event: AgentEvent = {
         "agent": "verifier",
         "event_type": "completed",
-        "message": f"Confidence: {confidence_score}/100",
+        "message": msg,
         "provider_product": None,
         "payload": {"confidence_score": confidence_score},
     }
@@ -120,3 +179,4 @@ async def run_verifier(state: AnalysisState) -> dict:
         "confidence_score": confidence_score,
         "events": [event],
     }
+

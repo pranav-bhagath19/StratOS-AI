@@ -22,6 +22,17 @@ log = logging.getLogger(__name__)
 _running_tasks: set[asyncio.Task] = set()
 
 
+def determine_analysis_status(final_state: dict, has_brief: bool) -> str:
+    """Determine whether the terminal state is completed or failed.
+    
+    Strict binary outcome: the pipeline either produced a genuine LLM-verified
+    brief (completed) or it didn't (failed). No intermediate 'partial' state.
+    """
+    if not has_brief:
+        return "failed"
+    return "completed"
+
+
 async def _run_analysis(
     analysis_id: str,
     analysis_type: str,
@@ -67,18 +78,27 @@ async def _run_analysis(
                 log.exception("Failed to insert intelligence event into DB: %s", db_exc)
 
         # Persist the Battle Brief
+        action_pack = final_state.get("action_pack", {})
+        exec_summary = final_state.get("executive_summary", "")
+        confidence = final_state.get("confidence_score", 0)
+        provider_calls = final_state.get("provider_calls", [])
+
         await db.ainsert_brief(analysis_id, {
             "market_move_score": final_state.get("market_move_score", 0),
             "recommended_move": final_state.get("recommended_move", "MONITOR"),
-            "confidence_score": final_state.get("confidence_score", 0),
-            "executive_summary": final_state.get("executive_summary", ""),
-            "action_pack": final_state.get("action_pack", {}),
-            "provider_calls": final_state.get("provider_calls", []),
+            "confidence_score": confidence,
+            "executive_summary": exec_summary,
+            "action_pack": action_pack,
+            "provider_calls": provider_calls,
         })
-        await db.aupdate_analysis_status(analysis_id, "completed")
+
+        # Truthful terminal status calculation
+        final_status = determine_analysis_status(final_state, has_brief=bool(exec_summary))
+        await db.aupdate_analysis_status(analysis_id, final_status)
+        log.info(f"Analysis {analysis_id} finished with status '{final_status}' (conf={confidence})")
 
     except Exception as exc:
-        log.exception(f"Analysis {analysis_id} failed")
+        log.exception(f"Analysis {analysis_id} failed: {exc}")
         await db.aupdate_analysis_status(analysis_id, "failed")
         await ev.emit(analysis_id, "coordinator", "failed", f"Analysis failed: {exc}")
         try:
@@ -95,15 +115,18 @@ async def _run_analysis(
         await ev.emit_done(analysis_id)
 
 
+
 # ── Routes — literal paths MUST come before /{analysis_id} ────────────────────
 
 @router.get("/hello")
 async def hello_analysis() -> dict:
     """Smoke-test: verifies search provider reachability and openrouter config."""
-    if not settings.openrouter_api_key:
+    has_openrouter = bool(settings.openrouter_api_key)
+    has_gemini = bool(getattr(settings, "gemini_api_key", ""))
+    if not has_openrouter and not has_gemini:
         return {
             "status": "config_needed",
-            "message": "Set OPENROUTER_API_KEY in .env",
+            "message": "Set OPENROUTER_API_KEY or GEMINI_API_KEY in .env",
         }
     try:
         results = await provider_manager.search("stratos ai hackathon", limit=3)
@@ -158,19 +181,42 @@ async def stream_analysis(analysis_id: str):
         # Stream live events from the in-memory queue
         q = ev.get_queue(analysis_id)
         if q is None:
-            # Analysis already finished or never started — send done immediately
-            yield {"event": "done", "data": json.dumps({"message": "no active stream"})}
+            # Analysis already finished or never started — check DB for truthful terminal state
+            analysis_rec = await db.aget_analysis(analysis_id)
+            current_status = analysis_rec.get("status", "completed") if analysis_rec else "completed"
+            brief_rec = await db.aget_brief_by_analysis(analysis_id)
+            has_brief = bool(brief_rec and brief_rec.get("executive_summary"))
+            yield {
+                "event": "done",
+                "data": json.dumps({
+                    "status": current_status,
+                    "has_brief": has_brief,
+                    "message": f"analysis {current_status}",
+                }),
+            }
             return
 
         while True:
             item = await q.get()
             if item.get("__done__"):
-                yield {"event": "done", "data": json.dumps({"message": "analysis complete"})}
+                analysis_rec = await db.aget_analysis(analysis_id)
+                current_status = analysis_rec.get("status", "completed") if analysis_rec else "completed"
+                brief_rec = await db.aget_brief_by_analysis(analysis_id)
+                has_brief = bool(brief_rec and brief_rec.get("executive_summary"))
+                yield {
+                    "event": "done",
+                    "data": json.dumps({
+                        "status": current_status,
+                        "has_brief": has_brief,
+                        "message": f"analysis {current_status}",
+                    }),
+                }
                 ev.remove_queue(analysis_id)
                 return
             yield {"event": "intelligence_event", "data": json.dumps(item)}
 
     return EventSourceResponse(event_generator())
+
 
 
 @router.get("/{analysis_id}/diff")

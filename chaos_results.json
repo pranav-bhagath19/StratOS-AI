@@ -1,0 +1,362 @@
+[
+  {
+    "run_idx": 1,
+    "run_id": "chaos-01-1789675225",
+    "target": "Portonics",
+    "profile": 1,
+    "duration_sec": 2.8,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Verifier LLM returned invalid format (expected dict with confidence_score)."
+    ]
+  },
+  {
+    "run_idx": 2,
+    "run_id": "chaos-02-1789675228",
+    "target": "NVIDIA",
+    "profile": 2,
+    "duration_sec": 1.63,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 3,
+    "run_id": "chaos-03-1789675229",
+    "target": "Boeing",
+    "profile": 3,
+    "duration_sec": 1.08,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 4,
+    "run_id": "chaos-04-1789675231",
+    "target": "Change Healthcare",
+    "profile": 4,
+    "duration_sec": 0.19,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 5,
+    "run_id": "chaos-05-1789675231",
+    "target": "Wix.com",
+    "profile": 5,
+    "duration_sec": 0.17,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 6,
+    "run_id": "chaos-06-1789675231",
+    "target": "ASML",
+    "profile": 0,
+    "duration_sec": 1.11,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 7,
+    "run_id": "chaos-07-1789675232",
+    "target": "Portonics",
+    "profile": 1,
+    "duration_sec": 0.89,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Verifier LLM returned invalid format (expected dict with confidence_score)."
+    ]
+  },
+  {
+    "run_idx": 8,
+    "run_id": "chaos-08-1789675233",
+    "target": "NVIDIA",
+    "profile": 2,
+    "duration_sec": 0.16,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 9,
+    "run_id": "chaos-09-1789675233",
+    "target": "Boeing",
+    "profile": 3,
+    "duration_sec": 0.17,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 10,
+    "run_id": "chaos-10-1789675233",
+    "target": "Change Healthcare",
+    "profile": 4,
+    "duration_sec": 0.16,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 11,
+    "run_id": "chaos-11-1789675233",
+    "target": "Wix.com",
+    "profile": 5,
+    "duration_sec": 0.15,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 12,
+    "run_id": "chaos-12-1789675234",
+    "target": "ASML",
+    "profile": 0,
+    "duration_sec": 0.16,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 13,
+    "run_id": "chaos-13-1789675234",
+    "target": "Portonics",
+    "profile": 1,
+    "duration_sec": 0.93,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Verifier LLM returned invalid format (expected dict with confidence_score)."
+    ]
+  },
+  {
+    "run_idx": 14,
+    "run_id": "chaos-14-1789675235",
+    "target": "NVIDIA",
+    "profile": 2,
+    "duration_sec": 0.15,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 15,
+    "run_id": "chaos-15-1789675235",
+    "target": "Boeing",
+    "profile": 3,
+    "duration_sec": 0.14,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 16,
+    "run_id": "chaos-16-1789675235",
+    "target": "Change Healthcare",
+    "profile": 4,
+    "duration_sec": 0.15,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 17,
+    "run_id": "chaos-17-1789675235",
+    "target": "Wix.com",
+    "profile": 5,
+    "duration_sec": 0.17,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 18,
+    "run_id": "chaos-18-1789675235",
+    "target": "ASML",
+    "profile": 0,
+    "duration_sec": 0.17,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  },
+  {
+    "run_idx": 19,
+    "run_id": "chaos-19-1789675235",
+    "target": "Portonics",
+    "profile": 1,
+    "duration_sec": 0.87,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Verifier LLM returned invalid format (expected dict with confidence_score)."
+    ]
+  },
+  {
+    "run_idx": 20,
+    "run_id": "chaos-20-1789675236",
+    "target": "NVIDIA",
+    "profile": 2,
+    "duration_sec": 0.17,
+    "planner_status": "failed",
+    "researcher_status": "failed",
+    "scout_status": "failed",
+    "verifier_status": "failed",
+    "coordinator_status": "failed",
+    "final_status": "failed",
+    "has_brief": false,
+    "false_success": false,
+    "errors": [
+      "Planner LLM failed: Error code: 429 - {'error': {'message': 'Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day', 'code': 429, 'metadata': {'headers': {'X-RateLimit-Limit': '50', 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': '1789689600000'}, 'limit_source': 'openrouter_free_tier_daily', 'remedy_hint': 'Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.', 'provider_name': None}}, 'user_id': 'user_3JSowIRXs4rThmB0JZcQWhdVolh'} (type=insufficient_credits)"
+    ]
+  }
+]

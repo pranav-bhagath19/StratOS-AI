@@ -4,7 +4,7 @@ import json
 import logging
 
 from langchain_core.messages import HumanMessage
-from intelligence.agents.base.llm import get_llm_response
+from intelligence.agents.base.llm import get_llm_response, get_llm_result
 from intelligence.agents.base.json_parse import extract_json
 
 from intelligence.agents.base import events as ev
@@ -167,7 +167,7 @@ _KNOWN_TRUST_PAGES: dict[str, str] = {
 
 def _target_domain(target: str) -> str:
     """Best-effort domain extraction — 'Wix.com' → 'wix.com', 'Shopify' → 'shopify.com'."""
-    raw = target.lower().strip().replace("https://", "").replace("http://", "").replace("www.", "")
+    raw = target.lower().strip().replace("https://", "").replace("http://", "").replace("www.", "").replace(" ", "")
     domain = raw.split("/")[0]
     if "." not in domain:
         domain = f"{domain}.com"
@@ -293,38 +293,86 @@ async def run_planner(state: AnalysisState) -> dict:
     await ev.emit(analysis_id, "planner", "started", f"Analyzing {analysis_type} on: {target}")
     await ev.emit(analysis_id, "planner", "thinking", "Building research plan…")
 
-    response_content = await get_llm_response(
-        system_msg=_SYSTEM,
-        messages=[HumanMessage(content=_human(analysis_type, target, context))],
-        max_tokens=2048,
-    )
+    raw_plan: list[ResearchStep] = []
 
     try:
-        raw_plan = extract_json(response_content)
-        plan: list[ResearchStep] = raw_plan if isinstance(raw_plan, list) else []
+        llm_res = await get_llm_result(
+            system_msg=_SYSTEM,
+            messages=[HumanMessage(content=_human(analysis_type, target, context))],
+            max_tokens=3000,
+        )
     except Exception as exc:
-        log.warning(f"Planner failed to extract JSON from LLM output ({exc}). Generating default plan.")
-        plan = []
+        error_msg = f"Planner LLM failed: {exc}"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "planner", "failed", error_msg)
+        raise RuntimeError(error_msg)
 
-    # Post-processing guarantee: every plan must cover all 5 Bright Data products.
-    plan = _ensure_all_products(plan, analysis_type, target)
+    if not llm_res.success or not llm_res.content:
+        error_msg = f"Planner LLM failed: {llm_res.error or 'empty response'} (type={llm_res.error_type})"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "planner", "failed", error_msg)
+        event: AgentEvent = {
+            "agent": "planner",
+            "event_type": "failed",
+            "message": error_msg,
+            "provider_product": None,
+            "payload": {"error": llm_res.error, "error_type": llm_res.error_type},
+        }
+        raise RuntimeError(error_msg)
+
+    try:
+        extracted = extract_json(llm_res.content)
+        raw_plan = []
+        if isinstance(extracted, list) and len(extracted) > 0:
+            raw_plan = extracted
+        elif isinstance(extracted, dict):
+            # Check for common wrapper keys: "plan", "research_plan", "steps", "tasks", "items"
+            for key in ("plan", "research_plan", "steps", "tasks", "items"):
+                val = extracted.get(key)
+                if isinstance(val, list) and len(val) > 0:
+                    raw_plan = val
+                    break
+            if not raw_plan:
+                # Find any list value inside the dict
+                for val in extracted.values():
+                    if isinstance(val, list) and len(val) > 0 and (isinstance(val[0], dict) or isinstance(val[0], str)):
+                        raw_plan = val
+                        break
+        if not raw_plan:
+            error_msg = "Planner LLM returned non-list or empty plan."
+            log.error(error_msg)
+            await ev.emit(analysis_id, "planner", "failed", error_msg)
+            raise RuntimeError(error_msg)
+    except RuntimeError:
+        raise
+    except Exception as json_err:
+        error_msg = f"Planner JSON extraction failed: {json_err}"
+        log.error(error_msg)
+        await ev.emit(analysis_id, "planner", "failed", error_msg)
+        raise RuntimeError(error_msg)
+
+    # Ensure all 5 Bright Data capabilities are covered (gap-fill or full plan if raw_plan is empty)
+    plan = _ensure_all_products(raw_plan, analysis_type, target)
 
     tools_used = {s["tool"] for s in plan}
     products_covered = {
         p for p, tools in _REQUIRED_PRODUCTS.items() if tools & tools_used
     }
 
+    completion_msg = f"Plan ready: {len(plan)} steps, {len(products_covered)}/5 capabilities"
+
     await ev.emit(
         analysis_id, "planner", "completed",
-        f"Plan ready: {len(plan)} steps, {len(products_covered)}/5 capabilities",
+        completion_msg,
         payload={"plan": plan},
     )
 
     event: AgentEvent = {
         "agent": "planner",
         "event_type": "completed",
-        "message": f"Plan: {len(plan)} steps, {len(products_covered)}/5 products",
+        "message": completion_msg,
         "provider_product": None,
         "payload": {"plan": plan},
     }
     return {"research_plan": plan, "events": [event]}
+

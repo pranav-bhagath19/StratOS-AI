@@ -21,19 +21,19 @@ _PRODUCT_MAP: dict[str, str] = {
     "browser_render": "scraping_browser",
 }
 
-# Per-product timeout budgets (seconds).
+# Per-product timeout budgets (seconds) — bounded to avoid latency stacking.
 _PRODUCT_TIMEOUT: dict[str, float] = {
-    "serp_api": 15.0,
-    "mcp_server": 20.0,
-    "web_unlocker": 30.0,
-    "web_scraper_api": 160.0,
-    "scraping_browser": 35.0,
+    "serp_api": 10.0,
+    "mcp_server": 15.0,
+    "web_unlocker": 15.0,
+    "web_scraper_api": 20.0,
+    "scraping_browser": 15.0,
 }
 
-# Products that get one retry on timeout (60% of original budget, after 1s pause).
-_RETRY_PRODUCTS = {"web_unlocker", "scraping_browser"}
-_RETRY_DELAY = 1.0
-_RETRY_TIMEOUT_FACTOR = 0.6
+# Products that get one retry on timeout (50% of budget, after 0.5s pause).
+_RETRY_PRODUCTS = {"web_unlocker"}
+_RETRY_DELAY = 0.5
+_RETRY_TIMEOUT_FACTOR = 0.5
 
 
 def _fmt_serp(results: list[dict]) -> str:
@@ -78,6 +78,8 @@ async def _execute(step: ResearchStep) -> tuple[str, ProviderCall]:
         else:
             result_text = f"[Unknown tool: {tool}]"
 
+    except (asyncio.TimeoutError, TimeoutError):
+        raise
     except Exception as exc:
         log.exception("Researcher agent: tool execution failed: %s", exc)
         result_text = f"[Error in {tool}: {exc}]"
@@ -86,7 +88,8 @@ async def _execute(step: ResearchStep) -> tuple[str, ProviderCall]:
     product = _PRODUCT_MAP.get(tool, "unknown")
 
     # Derive status from content quality
-    has_content = bool(result_text and len(result_text.strip()) > 50)
+    is_error = bool(result_text and (result_text.startswith("[Error") or result_text.startswith("[Unknown") or result_text.startswith("[No data")))
+    has_content = bool(result_text and len(result_text.strip()) > 20 and not is_error)
     ok = has_content
     status = "ok" if has_content else "empty"
 
@@ -110,6 +113,17 @@ async def _attempt_with_retry(
             return await asyncio.wait_for(_execute(step), timeout=timeout)
         except asyncio.TimeoutError:
             return None
+        except Exception as exc:
+            log.warning("Researcher: step %d encountered error: %s", step.get("step", 0), exc)
+            err_call: ProviderCall = {
+                "product": product,
+                "tool": step.get("tool", "unknown"),
+                "query_or_url": step.get("query_or_url", ""),
+                "latency_ms": 0,
+                "ok": False,
+                "status": "failed",
+            }
+            return f"[{step.get('tool', 'tool')} error: {exc}]", err_call
 
     # First attempt
     res = await _once(base_timeout)
@@ -227,6 +241,14 @@ async def run_researcher(state: AnalysisState) -> dict:
     products_used = {c["product"] for c in provider_calls if c.get("status") == "ok"}
     products_attempted = {c["product"] for c in provider_calls}
 
+    # Explicit research status evaluation
+    if len(products_used) >= 3:
+        research_status = "complete"
+    elif len(products_used) >= 1:
+        research_status = "partial"
+    else:
+        research_status = "failed"
+
     if len(products_attempted) < 5:
         missing = (
             {"serp_api", "mcp_server", "web_unlocker", "web_scraper_api", "scraping_browser"}
@@ -236,16 +258,19 @@ async def run_researcher(state: AnalysisState) -> dict:
 
     await ev.emit(
         analysis_id, "researcher", "completed",
-        f"Research done — {len(provider_calls)} calls, {len(products_used)}/5 ok, {wall_ms}ms wall",
+        f"Research done ({research_status}) — {len(provider_calls)} calls, {len(products_used)}/5 ok, {wall_ms}ms wall",
         payload={
             "wall_time_ms": wall_ms,
             "products_covered": len(products_used),
             "status_counts": status_counts,
+            "research_status": research_status,
         },
     )
 
     return {
         "raw_findings": "\n\n---\n\n".join(findings),
         "provider_calls": provider_calls,
+        "research_status": research_status,
         "events": state_events,
     }
+

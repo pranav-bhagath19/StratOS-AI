@@ -1,3 +1,8 @@
+try:
+    from google.cloud.firestore_v1.base_query import FieldFilter
+except ImportError:
+    FieldFilter = None
+
 import uuid
 from datetime import datetime, timezone
 from database.firebase import collections
@@ -43,7 +48,10 @@ class CitationRepository(BaseRepository):
 
     def list_citations(self, analysis_id: str) -> list[dict]:
         if self.collection:
-            docs = self.collection.where("analysis_id", "==", analysis_id).stream()
+            if FieldFilter:
+                docs = self.collection.where(filter=FieldFilter("analysis_id", "==", analysis_id)).stream()
+            else:
+                docs = self.collection.where("analysis_id", "==", analysis_id).stream()
             results = [d.to_dict() for d in docs]
         else:
             db = _load_local_db()

@@ -1,3 +1,8 @@
+try:
+    from google.cloud.firestore_v1.base_query import FieldFilter
+except ImportError:
+    FieldFilter = None
+
 from datetime import datetime, timezone
 from database.firebase import collections
 from database.repositories.base import BaseRepository
@@ -57,7 +62,15 @@ class AnalysisRepository(BaseRepository):
 
     def find_prior(self, target: str, analysis_type: str, exclude_id: str) -> dict | None:
         if self.collection:
-            docs = self.collection.where("target", "==", target).where("status", "==", "completed").stream()
+            if FieldFilter:
+                docs = (
+                    self.collection
+                    .where(filter=FieldFilter("target", "==", target))
+                    .where(filter=FieldFilter("status", "==", "completed"))
+                    .stream()
+                )
+            else:
+                docs = self.collection.where("target", "==", target).where("status", "==", "completed").stream()
             results = [d.to_dict() for d in docs]
         else:
             results = [r for r in self._list_local() if r.get("target") == target and r.get("status") == "completed"]

@@ -15,6 +15,37 @@ def _clean_json_str(s: str) -> str:
     return s.strip()
 
 
+def _auto_close_json(s: str) -> str:
+    """If JSON was truncated by token limit, attempt to close open brackets and quotes."""
+    s = s.strip()
+    in_string = False
+    escape = False
+    stack = []
+    for c in s:
+        if in_string:
+            if escape:
+                escape = False
+            elif c == "\\":
+                escape = True
+            elif c == '"':
+                in_string = False
+        else:
+            if c == '"':
+                in_string = True
+            elif c in ("{", "["):
+                stack.append("}" if c == "{" else "]")
+            elif c in ("}", "]"):
+                if stack and stack[-1] == c:
+                    stack.pop()
+    res = s
+    if in_string:
+        res += '"'
+    res = re.sub(r",\s*$", "", res)
+    for closer in reversed(stack):
+        res += closer
+    return res
+
+
 def extract_json(raw: str) -> dict[str, Any] | list[Any]:
     """
     Extracts and parses a JSON object or array from raw LLM output strings.
@@ -31,8 +62,10 @@ def extract_json(raw: str) -> dict[str, Any] | list[Any]:
     if not raw or not raw.strip():
         raise ValueError("Cannot extract JSON from empty LLM response.")
 
-    # Remove reasoning thinking tags if present
-    cleaned_raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL | re.IGNORECASE).strip()
+    # Remove reasoning thinking tags if present (think, thought, thinking)
+    cleaned_raw = re.sub(r"<(think|thought|thinking)>.*?</\1>", "", raw, flags=re.DOTALL | re.IGNORECASE).strip()
+    # Remove unclosed thought tags if output was truncated
+    cleaned_raw = re.sub(r"<(think|thought|thinking)>.*$", "", cleaned_raw, flags=re.DOTALL | re.IGNORECASE).strip()
     if not cleaned_raw:
         cleaned_raw = raw.strip()
 
@@ -115,6 +148,18 @@ def extract_json(raw: str) -> dict[str, Any] | list[Any]:
                     return data
             except Exception:
                 pass
+
+    # 4. Truncation Recovery: If no balanced bracket candidate parsed, scan opening brackets with auto-closing
+    for i, char in enumerate(cleaned_raw):
+        if char in ("{", "["):
+            sub = cleaned_raw[i:]
+            for candidate_str in (_auto_close_json(sub), _clean_json_str(_auto_close_json(sub))):
+                try:
+                    data = json.loads(candidate_str)
+                    if isinstance(data, (dict, list)) and len(data) > 0:
+                        return data
+                except Exception:
+                    pass
 
     preview = raw[:250] + ("..." if len(raw) > 250 else "")
     raise ValueError(f"Failed to extract valid JSON from LLM response. Raw response start: {preview!r}")

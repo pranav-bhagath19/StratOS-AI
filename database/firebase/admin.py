@@ -1,4 +1,5 @@
 import logging
+import threading
 import firebase_admin
 from firebase_admin import credentials
 from database.firebase.config import firebase_config
@@ -6,11 +7,26 @@ from database.firebase.config import firebase_config
 log = logging.getLogger(__name__)
 
 _app = None
+_init_lock = threading.Lock()
+
 
 def get_firebase_app():
-    """Initializes and returns the shared Firebase Admin App instance."""
+    """Initializes and returns the shared Firebase Admin App instance in a thread-safe, idempotent manner."""
     global _app
-    if _app is None:
+
+    # Fast-path check without lock
+    if _app is not None:
+        return _app
+
+    with _init_lock:
+        if _app is not None:
+            return _app
+
+        # Check if an app has already been initialized (e.g. by another module or test runner)
+        if firebase_admin._apps and "[DEFAULT]" in firebase_admin._apps:
+            _app = firebase_admin.get_app()
+            return _app
+
         if firebase_config.project_id and firebase_config.private_key:
             try:
                 info = {
@@ -27,16 +43,24 @@ def get_firebase_app():
                 }
                 # Remove empty string keys
                 info = {k: v for k, v in info.items() if v}
-                
+
                 cred = credentials.Certificate(info)
                 options = {}
                 if firebase_config.storage_bucket:
-                    options['storageBucket'] = firebase_config.storage_bucket
+                    options["storageBucket"] = firebase_config.storage_bucket
                 _app = firebase_admin.initialize_app(cred, options)
                 log.info("Firebase: Admin SDK initialized successfully with service account certificate info.")
+            except ValueError as ve:
+                # If another thread/process managed to initialize it simultaneously
+                if "already exists" in str(ve).lower():
+                    _app = firebase_admin.get_app()
+                else:
+                    log.error("Firebase: Initialization ValueError: %s", ve)
+                    raise
             except Exception as exc:
-                log.error(f"Firebase: Failed to initialize Admin SDK with certificate: {exc}")
+                log.error("Firebase: Failed to initialize Admin SDK with certificate: %s", exc)
                 raise
         else:
             log.warning("Firebase: Credentials not fully configured. Operating in LOCAL / OFFLINE mode.")
+
     return _app
